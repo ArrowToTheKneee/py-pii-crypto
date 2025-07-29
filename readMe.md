@@ -1,37 +1,124 @@
-# PII Encryption/Decryption Library
+# 🔐 PII Crypto Utils
 
-This Python library securely encrypts and decrypts Personally Identifiable Information (PII) fields. It integrates with Azure KeyVault to fetch unique encryption keys for each PII field (e.g., Name, SSN). Each field requires its own encryption key, ensuring data-specific security. The library also supports key rollover on a yearly basis, allowing decryption of previously encrypted data.
+This Python library provides tools for **encrypting and decrypting Personally Identifiable Information (PII)** using AES-GCM encryption. It includes a **CLI interface** for managing encryption keys, encrypting/decrypting data, and processing CSV files securely.
 
-The library provides two main modes of operation:
-- **Encrypt/Decrypt Endpoint:** Encrypt or decrypt PII fields directly in a CSV file using Azure KeyVault.
-- **Local Key Import:** Import the keys locally for faster processing when working with large datasets.
+---
 
-## Features
+## ✅ Features
 
-- **Field-Specific Encryption:** Each PII field (e.g., Name, SSN) uses a unique encryption key fetched from Azure KeyVault.
-- **Key Management:** Keys are securely retrieved from Azure KeyVault for each individual PII field.
-- **Random Nonce/Salt:** A random nonce or salt is used during encryption to ensure data security.
-- **Key Rollover:** The library supports automatic key rollover on a yearly basis, ensuring backward compatibility for decryption of previously encrypted PII.
-- **Secure Storage:** Use the library to store encrypted PII fields in databases or CSV files securely.
-- **CSV File Encryption/Decryption:** Encrypt or decrypt entire fields in a CSV file using the Azure KeyVault-based keys.
-- **Local Key Import for Large Datasets:** Import encryption keys locally to handle large datasets more efficiently without hitting the Azure KeyVault endpoints every time.
+### 🔑 Key Management
+- **AES-256 Key Generation**: Generate secure encryption keys.
+- **Key Versioning**: Maintain multiple versions of keys (e.g., `v1`, `v2`).
+- **Key Rotation**: Rotate keys and automatically update to the latest version.
 
-## Requirements
+### 🔒 AES-GCM Encryption
+- **Field-Specific Encryption**: Encrypt individual fields with unique keys.
+- **Secure Nonce Handling**: Uses a random 12-byte nonce for each encryption.
+- **Authentication Tags**: Ensures data integrity with 16-byte tags.
+
+### 📂 CSV File Support
+- Encrypt and decrypt specific fields in CSV files.
+- Automatically handles key versioning in encrypted data.
+
+---
+
+## 🧰 Requirements
 
 - Python 3.7+
-- Azure KeyVault
-- `cryptography` library for encryption
-- `azure-identity` for Azure authentication
-- `azure-keyvault-secrets` for accessing secrets in KeyVault
-- `pycryptodome` (or another preferred encryption library)
-- `pandas` for handling CSV files
+- [pycryptodome](https://pypi.org/project/pycryptodome/)
 
-## Installation
+---
 
-Clone the repository and install the necessary dependencies:
+## 🚀 Getting Started
 
+### 1. Install Dependencies
 ```bash
-git clone https://github.com/your-username/pii-encryption-library.git
-cd pii-encryption-library
-pip install -r requirements.txt
+pip install pycryptodome typer
+```
 
+### 2. Generate Keys
+Generate AES keys for specific fields and save them to a JSON file:
+```bash
+python key_manager.py generate-keys --fields "name,ssn,dob" --json-file keys.json
+```
+
+### 3. Encrypt Data
+Encrypt a single field:
+```bash
+python encryptor.py encrypt-data --key <base64_key> --data "Sensitive Data"
+```
+
+Encrypt fields in a CSV file:
+```bash
+python encryptor.py encrypt-csv-file --input-file input.csv --output-file encrypted.csv --keys-file keys.json
+```
+
+### 4. Decrypt Data
+Decrypt a single field:
+```bash
+python decryptor.py decrypt-data --key <base64_key> --data <encrypted_data>
+```
+
+Decrypt fields in a CSV file:
+```bash
+python decryptor.py decrypt-csv-file --input-file encrypted.csv --output-file decrypted.csv --keys-file keys.json
+```
+
+### 5. Rotate Keys
+Rotate keys and increment the version:
+```bash
+python key_manager.py rotate-keys --json-file keys.json
+```
+
+---
+
+## 📂 File Structure
+
+```
+src/
+├── key_manager.py       # Key management (generation, rotation, loading)
+├── encryptor.py         # Encryption logic (single fields, CSV files)
+├── decryptor.py         # Decryption logic (single fields, CSV files)
+├── keys.json            # JSON file storing encryption keys
+├── __init__.py          # Package initialization
+└── readMe.md            # Documentation
+```
+
+---
+
+## 🧪 Example Workflow
+
+1. **Generate Keys**:
+   ```bash
+   python key_manager.py generate-keys --fields "name,ssn" --json-file keys.json
+   ```
+
+2. **Encrypt CSV**:
+   ```bash
+   python encryptor.py encrypt-csv-file --input-file input.csv --output-file encrypted.csv --keys-file keys.json
+   ```
+
+3. **Decrypt CSV**:
+   ```bash
+   python decryptor.py decrypt-csv-file --input-file encrypted.csv --output-file decrypted.csv --keys-file keys.json
+   ```
+
+4. **Rotate Keys**:
+   ```bash
+   python key_manager.py rotate-keys --json-file keys.json
+   ```
+
+---
+
+## 🔄 Future Enhancements
+
+- Integration with external key management systems (e.g., HashiCorp Vault, Azure Key Vault).
+- Support for JSON and Parquet file formats.
+- Batch processing with Pandas.
+- Faker integration for generating test data.
+
+---
+
+## 📜 License
+
+This project is licensed under the MIT License.
