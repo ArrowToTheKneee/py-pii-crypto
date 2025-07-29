@@ -42,7 +42,7 @@ def encrypt_data_command(
     """
     Encrypt data using AES encryption.
     """
-    encrypted_data = encrypt_data(key, data)
+    encrypt_data(key, data)
 
 
 @app.command("decrypt-data")
@@ -53,7 +53,7 @@ def decrypt_data_command(
     """
     Decrypt data using AES decryption.
     """
-    decrypted_data = decrypt_data(key, data)
+    decrypt_data(key, data)
 
 
 @app.command("encrypt-csv")
