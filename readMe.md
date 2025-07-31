@@ -1,124 +1,177 @@
-# 🔐 PII Crypto Utils
+# 🔐 PII Crypto
 
-This Python library provides tools for **encrypting and decrypting Personally Identifiable Information (PII)** using AES-GCM encryption. It includes a **CLI interface** for managing encryption keys, encrypting/decrypting data, and processing CSV files securely.
+A Python-based CLI tool and library for encrypting and decrypting Personally Identifiable Information (PII) in CSV files using AES-GCM encryption with field-level key management.
 
 ---
 
 ## ✅ Features
 
 ### 🔑 Key Management
-- **AES-256 Key Generation**: Generate secure encryption keys.
-- **Key Versioning**: Maintain multiple versions of keys (e.g., `v1`, `v2`).
-- **Key Rotation**: Rotate keys and automatically update to the latest version.
+- AES-256 key generation per field
+- Versioned key storage (v1, v2, ...)
+- Key rotation support for seamless key updates
 
 ### 🔒 AES-GCM Encryption
-- **Field-Specific Encryption**: Encrypt individual fields with unique keys.
-- **Secure Nonce Handling**: Uses a random 12-byte nonce for each encryption.
-- **Authentication Tags**: Ensures data integrity with 16-byte tags.
+- Per-field encryption with authentication tags
+- Random 12-byte nonces per row
+- Version-tagged ciphertexts for forward compatibility
 
-### 📂 CSV File Support
-- Encrypt and decrypt specific fields in CSV files.
-- Automatically handles key versioning in encrypted data.
+### 📂 CSV Processing
+- Field-level encryption/decryption in CSV files
+- Intelligent field matching via aliases (fuzzy matching with RapidFuzz)
+- Skips empty fields and non-PII columns (like row counters, or non-matching aliases)
 
 ---
 
 ## 🧰 Requirements
 
 - Python 3.7+
-- [pycryptodome](https://pypi.org/project/pycryptodome/)
 
----
+### Installation
 
-## 🚀 Getting Started
-
-### 1. Install Dependencies
-```bash
-pip install pycryptodome typer
+Install via pip from your local directory:
 ```
 
-### 2. Generate Keys
-Generate AES keys for specific fields and save them to a JSON file:
-```bash
-python key_manager.py generate-keys --fields "name,ssn,dob" --json-file keys.json
+pip install .
+
 ```
 
-### 3. Encrypt Data
-Encrypt a single field:
-```bash
-python encryptor.py encrypt-data --key <base64_key> --data "Sensitive Data"
+Or install only the dependencies directly:
 ```
 
-Encrypt fields in a CSV file:
-```bash
-python encryptor.py encrypt-csv-file --input-file input.csv --output-file encrypted.csv --keys-file keys.json
-```
+pip install typer pycryptodome rapidfuzz
 
-### 4. Decrypt Data
-Decrypt a single field:
-```bash
-python decryptor.py decrypt-data --key <base64_key> --data <encrypted_data>
-```
-
-Decrypt fields in a CSV file:
-```bash
-python decryptor.py decrypt-csv-file --input-file encrypted.csv --output-file decrypted.csv --keys-file keys.json
-```
-
-### 5. Rotate Keys
-Rotate keys and increment the version:
-```bash
-python key_manager.py rotate-keys --json-file keys.json
 ```
 
 ---
 
-## 📂 File Structure
+## 🚀 Usage Guide
+
+The CLI is exposed as `pii-crypto`.
+
+### 🔧 Generate Keys
 
 ```
-src/
-├── key_manager.py       # Key management (generation, rotation, loading)
-├── encryptor.py         # Encryption logic (single fields, CSV files)
-├── decryptor.py         # Decryption logic (single fields, CSV files)
-├── keys.json            # JSON file storing encryption keys
-├── __init__.py          # Package initialization
-└── readMe.md            # Documentation
+
+pii-crypto generate-keys --fields "name,email,ssn" --json-file keys.json
+
+```
+Creates a `keys.json` file with AES-256 keys under version v1.
+
+### ♻️ Rotate Keys
+
+```
+
+pii-crypto rotate-keys --json-file keys.json
+
+```
+Adds a new key version (e.g., v2) for each existing field.
+
+### 🔐 Encrypt CSV
+
+```
+
+pii-crypto encrypt-csv \
+--input-file input.csv \
+--output-file encrypted.csv \
+--keys-file keys.json \
+--aliases-file aliases.json
+
+```
+- Fields are matched against aliases (if provided)
+- Adds a `row_iv` column to each row
+- Automatically skips row numbers, empty fields, etc.
+
+### 🔓 Decrypt CSV
+
+```
+
+pii-crypto decrypt-csv \
+--input-file encrypted.csv \
+--output-file decrypted.csv \
+--keys-file keys.json \
+--aliases-file aliases.json
+
+```
+- Only fields encrypted with the current key version are decrypted
+- Fields not recognized in keys or aliases remain unchanged
+
+### 🔐 Encrypt Raw Data
+
+```
+
+pii-crypto encrypt-data \
+--key <base64_key> \
+--data "Sensitive Info" \
+--nonce <base64_nonce>
+
+```
+
+### 🔓 Decrypt Raw Data
+
+```
+
+pii-crypto decrypt-data \
+--key <base64_key> \
+--data <ciphertext> \
+--nonce <base64_nonce>
+
 ```
 
 ---
 
-## 🧪 Example Workflow
+## 🧠 Field Aliasing with Fuzzy Matching
 
-1. **Generate Keys**:
-   ```bash
-   python key_manager.py generate-keys --fields "name,ssn" --json-file keys.json
-   ```
+The CLI supports field aliasing via an optional `aliases.json` file:
+```
 
-2. **Encrypt CSV**:
-   ```bash
-   python encryptor.py encrypt-csv-file --input-file input.csv --output-file encrypted.csv --keys-file keys.json
-   ```
+{
+"ssn": ["social_security_number", "ss_number"],
+"dob": ["date_of_birth", "birthdate"]
+}
 
-3. **Decrypt CSV**:
-   ```bash
-   python decryptor.py decrypt-csv-file --input-file encrypted.csv --output-file decrypted.csv --keys-file keys.json
-   ```
-
-4. **Rotate Keys**:
-   ```bash
-   python key_manager.py rotate-keys --json-file keys.json
-   ```
+```
+This allows the tool to encrypt/decrypt even if column names vary.
 
 ---
 
-## 🔄 Future Enhancements
+## 📦 Project Structure
 
-- Integration with external key management systems (e.g., HashiCorp Vault, Azure Key Vault).
-- Support for JSON and Parquet file formats.
-- Batch processing with Pandas.
-- Faker integration for generating test data.
+```
+
+.
+├── cli.py               \# CLI entry point using Typer
+├── encryptor.py         \# CSV and string encryption logic
+├── decryptor.py         \# CSV and string decryption logic
+├── key_manager.py       \# Key generation, rotation, and loading
+├── helpers.py           \# Utility functions: nonce generation, alias matching
+├── pyproject.toml       \# Build system and dependencies
+└── readMe.md            \# 📘 You're here!
+
+```
 
 ---
 
-## 📜 License
+## 🧪 Sample Workflow
 
-This project is licensed under the MIT License.
+```
+
+
+# Generate initial keys
+
+pii-crypto generate-keys --fields "name,email" --json-file keys.json
+
+# Encrypt a CSV
+
+pii-crypto encrypt-csv --input-file raw.csv --output-file encrypted.csv --keys-file keys.json
+
+# Decrypt it back
+
+pii-crypto decrypt-csv --input-file encrypted.csv --output-file decrypted.csv --keys-file keys.json
+
+# Rotate keys as needed
+
+pii-crypto rotate-keys --json-file keys.json
+
+```
+
