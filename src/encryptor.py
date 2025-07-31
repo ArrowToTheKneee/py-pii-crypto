@@ -4,7 +4,7 @@ import csv
 from Crypto.Cipher import AES
 
 from helpers import find_best_match, generate_nonce
-from key_manager import load_keys
+from key_manager import load_latest_keys
 
 
 def encrypt_data(key: str, data: str, nonce: bytes) -> str:
@@ -24,7 +24,7 @@ def encrypt_csv_file(
     """
     Encrypt specified fields in a CSV file using AES encryption.
     """
-    version, keys = load_keys(keys_file)
+    version, keys = load_latest_keys(keys_file)
     with open(input_file, "r") as infile, open(output_file, "w") as outfile:
         reader = csv.DictReader(infile)
         fieldnames = reader.fieldnames + ["row_iv"]

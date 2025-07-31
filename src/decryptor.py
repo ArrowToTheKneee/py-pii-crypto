@@ -4,7 +4,7 @@ import csv
 from Crypto.Cipher import AES
 
 from helpers import find_best_match
-from key_manager import load_keys
+from key_manager import get_keys_by_version
 
 
 def decrypt_data(key: str, data: str, nonce: str) -> str:
@@ -29,7 +29,6 @@ def decrypt_csv_file(
     """
     Decrypt specified fields in a CSV file using AES decryption.
     """
-    version, keys = load_keys(keys_file)
     with open(input_file, "r") as infile, open(output_file, "w") as outfile:
         reader = csv.DictReader(infile)
         fieldnames = reader.fieldnames
@@ -38,16 +37,19 @@ def decrypt_csv_file(
 
         for row in reader:
             for field in fieldnames:
-                if field == "row_iv" or not row[field]:
+                if field == "row_iv" or not row[field] or ":" not in row[field]:
                     continue
                 field_alias = (
                     find_best_match(field, aliases_file) if aliases_file else field
                 )
+                version, encrypted_data = row[field].split(":")
+                keys = get_keys_by_version(keys_file, version)
+                if not keys:
+                    raise ValueError(
+                        f"No keys found for version {version} in {keys_file}"
+                    )
                 if field_alias in keys:
-                    encrypted_data = row[field]
-                    if encrypted_data.startswith(version + ":"):
-                        encrypted_data = encrypted_data[len(version) + 1 :]
-                        row[field] = decrypt_data(
-                            keys[field_alias], encrypted_data, nonce=row["row_iv"]
-                        )
+                    row[field] = decrypt_data(
+                        keys[field_alias], encrypted_data, nonce=row["row_iv"]
+                    )
             writer.writerow(row)

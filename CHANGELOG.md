@@ -23,3 +23,4 @@ All notable changes to this project will be documented in this file.
 
 ### Added
 - Adding logic to skip encrypting row numbering/id column
+- Decryption of csv files encrypted with older version keys

@@ -47,7 +47,7 @@ def rotate_keys(json_file: str):
         raise RuntimeError(f"Error: {e}")
 
 
-def load_keys(json_file: str):
+def load_latest_keys(json_file: str):
     """
     Load AES keys from a JSON file.
     """
@@ -56,6 +56,25 @@ def load_keys(json_file: str):
             keys = json.load(f)
         max_version = max(int(k[1:]) for k in keys.keys())
         return f"v{max_version}", keys[f"v{max_version}"]
+    except FileNotFoundError:
+        raise FileNotFoundError(f"Error: The file {json_file} does not exist.")
+    except json.JSONDecodeError:
+        raise json.JSONDecodeError(f"Error: The file {json_file} is not a valid JSON.")
+    except Exception as e:
+        raise RuntimeError(f"An unexpected error occurred: {e}")
+
+
+def get_keys_by_version(json_file: str, version: str):
+    """
+    Load AES keys for a specific version from a JSON file.
+    """
+    try:
+        with open(json_file, "r") as f:
+            keys = json.load(f)
+        if version in keys:
+            return keys[version]
+        else:
+            raise ValueError(f"Version {version} not found in the keys file.")
     except FileNotFoundError:
         raise FileNotFoundError(f"Error: The file {json_file} does not exist.")
     except json.JSONDecodeError:

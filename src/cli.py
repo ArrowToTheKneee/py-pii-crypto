@@ -18,29 +18,29 @@ def generate_keys_command(
     fields: str = typer.Option(
         ..., help="Comma-separated list of fields to generate keys for."
     ),
-    json_file: str = typer.Option(
+    keys_file: str = typer.Option(
         ..., help="Path to the JSON file to save the generated keys."
     ),
 ):
     """
     Generate AES keys for the specified fields and save them to a JSON file.
     """
-    generate_keys(fields, json_file)
+    generate_keys(fields, keys_file)
 
 
 @keys_app.command("rotate")
 def rotate_keys_command(
-    json_file: str = typer.Option(
+    keys_file: str = typer.Option(
         ..., help="Path to the JSON file containing the keys."
     ),
 ):
     """
     Rotate AES keys in the specified JSON file.
     """
-    rotate_keys(json_file)
+    rotate_keys(keys_file)
 
 
-@data_app.command("decrypt")
+@data_app.command("encrypt")
 def encrypt_data_command(
     key: str = typer.Option(..., help="Base64-encoded AES key for encryption."),
     data: str = typer.Option(..., help="Data to encrypt."),
@@ -81,7 +81,7 @@ def encrypt_csv_command(
     encrypt_csv_file(input_file, output_file, keys_file, aliases_file)
 
 
-@csv_app.command("encrypt")
+@csv_app.command("decrypt")
 def decrypt_csv_command(
     input_file: str = typer.Option(..., help="Path to the input CSV file."),
     output_file: str = typer.Option(..., help="Path to the output CSV file."),

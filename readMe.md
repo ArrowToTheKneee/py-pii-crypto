@@ -14,7 +14,7 @@ A Python-based CLI tool and library for encrypting and decrypting Personally Ide
 ### 🔒 AES-GCM Encryption
 - Per-field encryption with authentication tags
 - Random 12-byte nonces per row
-- Version-tagged ciphertexts for forward compatibility
+- Version-tagged ciphertexts for forward and backward compatibility
 
 ### 📂 CSV Processing
 - Field-level encryption/decryption in CSV files
