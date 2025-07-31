@@ -1,0 +1,38 @@
+# Python builds
+
+__pycache__/
+src/*.egg-info/
+# Python bytecode
+*.py[cod]
+# Cython debug symbols
+cython_debug/
+# Jupyter Notebook checkpoints
+.ipynb_checkpoints/
+# Pytest cache
+.cache/
+# Coverage reports
+.coverage
+.coverage.*
+# Pytest HTML reports
+htmlcov/
+# Sphinx documentation
+docs/_build/
+# PyInstaller
+# PyInstaller creates a build folder with an executable
+# and a dist folder with the final application
+# The build folder is not needed in the repository      
+build/
+# The dist folder contains the final application
+dist/
+# PyInstaller creates a spec file
+*.spec
+# PyInstaller creates a log file
+*.log
+# PyInstaller creates a .pyz file
+*.pyz
+# PyInstaller creates a .whl file
+*.whl
+# PyInstaller creates a .egg file   
+*.egg
+# PyInstaller creates a .egg-info file
+*.egg-info/
