@@ -62,7 +62,7 @@ Creates a `keys.json` file with AES-256 keys under version v1.
 
 ```
 
-pii-crypto rotate-keys --json-file keys.json
+pii-crypto keys rotate --json-file keys.json
 
 ```
 Adds a new key version (e.g., v2) for each existing field.
@@ -71,7 +71,7 @@ Adds a new key version (e.g., v2) for each existing field.
 
 ```
 
-pii-crypto encrypt-csv \
+pii-crypto csv encrypt \
 --input-file input.csv \
 --output-file encrypted.csv \
 --keys-file keys.json \
@@ -86,7 +86,7 @@ pii-crypto encrypt-csv \
 
 ```
 
-pii-crypto decrypt-csv \
+pii-crypto csv decrypt \
 --input-file encrypted.csv \
 --output-file decrypted.csv \
 --keys-file keys.json \
@@ -100,7 +100,7 @@ pii-crypto decrypt-csv \
 
 ```
 
-pii-crypto encrypt-data \
+pii-crypto data encrypt \
 --key <base64_key> \
 --data "Sensitive Info" \
 --nonce <base64_nonce>
@@ -111,7 +111,7 @@ pii-crypto encrypt-data \
 
 ```
 
-pii-crypto decrypt-data \
+pii-crypto data decrypt \
 --key <base64_key> \
 --data <ciphertext> \
 --nonce <base64_nonce>
@@ -159,19 +159,19 @@ This allows the tool to encrypt/decrypt even if column names vary.
 
 # Generate initial keys
 
-pii-crypto generate-keys --fields "name,email" --json-file keys.json
+pii-crypto keys generate --fields "name,email" --json-file keys.json
 
 # Encrypt a CSV
 
-pii-crypto encrypt-csv --input-file raw.csv --output-file encrypted.csv --keys-file keys.json
+pii-crypto csv encrypt --input-file raw.csv --output-file encrypted.csv --keys-file keys.json
 
 # Decrypt it back
 
-pii-crypto decrypt-csv --input-file encrypted.csv --output-file decrypted.csv --keys-file keys.json
+pii-crypto csv decrypt --input-file encrypted.csv --output-file decrypted.csv --keys-file keys.json
 
 # Rotate keys as needed
 
-pii-crypto rotate-keys --json-file keys.json
+pii-crypto keys rotate --json-file keys.json
 
 ```
 
