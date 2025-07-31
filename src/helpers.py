@@ -25,4 +25,18 @@ def find_best_match(query: str, aliases_file: str) -> str:
         scorer=fuzz.token_set_ratio,
         processor=utils.default_process,
     )
+    print(f"Best match for '{query}': '{match}' with similarity {similarity}")
     return reverse_lookup[match] if similarity >= 95 else query
+
+
+def skip_id_column(row_number: int, value: dict, field_name: str) -> bool:
+    """
+    Skip the ID column in the first row of a CSV file.
+    """
+    ROW_NUMBER_ALIASES = {"row_number", "id", "index", "sr_no", "s.no"}
+    if field_name.lower() in ROW_NUMBER_ALIASES:
+        return True
+    stripped = value.strip()
+    if stripped.isdigit() and int(stripped) == row_number:
+        return True
+    return False

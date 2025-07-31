@@ -3,7 +3,7 @@ import csv
 
 from Crypto.Cipher import AES
 
-from helpers import find_best_match, generate_nonce
+from helpers import find_best_match, generate_nonce, skip_id_column
 from key_manager import load_latest_keys
 
 
@@ -31,10 +31,10 @@ def encrypt_csv_file(
         writer = csv.DictWriter(outfile, fieldnames=fieldnames)
         writer.writeheader()
 
-        for row in reader:
+        for row_num, row in enumerate(reader):
             nonce = generate_nonce()
             for field in reader.fieldnames:
-                if not row[field]:
+                if not row[field] or skip_id_column(row_num, row[field], field):
                     continue
                 field_alias = (
                     find_best_match(field, aliases_file) if aliases_file else field

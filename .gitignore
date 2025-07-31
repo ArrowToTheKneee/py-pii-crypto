@@ -2,6 +2,7 @@
 
 __pycache__/
 src/*.egg-info/
+examples/
 # Python bytecode
 *.py[cod]
 # Cython debug symbols
