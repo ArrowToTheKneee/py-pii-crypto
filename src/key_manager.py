@@ -49,7 +49,7 @@ def rotate_keys(json_file: str):
 
 def load_latest_keys(json_file: str):
     """
-    Load AES keys from a JSON file.
+    Load latest AES keys from a JSON file.
     """
     try:
         with open(json_file, "r") as f:
