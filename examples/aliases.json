@@ -1,0 +1,8 @@
+{
+    "ssn": ["social_security_number", "ssn"],
+    "name": ["full_name", "name"],
+    "dob": ["date_of_birth", "dob"],
+    "address": ["home_address", "address"],
+    "phone": ["contact_number", "phone", "home_phone", "mobile_number"],
+    "account_number": ["account_number", "bank_account_number", "bank_account"]
+}

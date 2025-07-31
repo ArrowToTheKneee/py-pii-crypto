@@ -1,0 +1,137 @@
+Metadata-Version: 2.4
+Name: pii-crypto
+Version: 0.1.0
+Summary: A CLI tool and library for PII encryption and decryption with field-level key management.
+Author: Avinash Pawar
+Classifier: Programming Language :: Python :: 3
+Classifier: Operating System :: OS Independent
+Requires-Python: >=3.7
+Description-Content-Type: text/markdown
+Requires-Dist: typer>=0.9.0
+Requires-Dist: pycryptodome>=3.18.0
+Requires-Dist: RapidFuzz>=3.13.0
+
+# 🔐 PII Crypto Utils
+
+This Python library provides tools for **encrypting and decrypting Personally Identifiable Information (PII)** using AES-GCM encryption. It includes a **CLI interface** for managing encryption keys, encrypting/decrypting data, and processing CSV files securely.
+
+---
+
+## ✅ Features
+
+### 🔑 Key Management
+- **AES-256 Key Generation**: Generate secure encryption keys.
+- **Key Versioning**: Maintain multiple versions of keys (e.g., `v1`, `v2`).
+- **Key Rotation**: Rotate keys and automatically update to the latest version.
+
+### 🔒 AES-GCM Encryption
+- **Field-Specific Encryption**: Encrypt individual fields with unique keys.
+- **Secure Nonce Handling**: Uses a random 12-byte nonce for each encryption.
+- **Authentication Tags**: Ensures data integrity with 16-byte tags.
+
+### 📂 CSV File Support
+- Encrypt and decrypt specific fields in CSV files.
+- Automatically handles key versioning in encrypted data.
+
+---
+
+## 🧰 Requirements
+
+- Python 3.7+
+- [pycryptodome](https://pypi.org/project/pycryptodome/)
+
+---
+
+## 🚀 Getting Started
+
+### 1. Install Dependencies
+```bash
+pip install pycryptodome typer
+```
+
+### 2. Generate Keys
+Generate AES keys for specific fields and save them to a JSON file:
+```bash
+python key_manager.py generate-keys --fields "name,ssn,dob" --json-file keys.json
+```
+
+### 3. Encrypt Data
+Encrypt a single field:
+```bash
+python encryptor.py encrypt-data --key <base64_key> --data "Sensitive Data"
+```
+
+Encrypt fields in a CSV file:
+```bash
+python encryptor.py encrypt-csv-file --input-file input.csv --output-file encrypted.csv --keys-file keys.json
+```
+
+### 4. Decrypt Data
+Decrypt a single field:
+```bash
+python decryptor.py decrypt-data --key <base64_key> --data <encrypted_data>
+```
+
+Decrypt fields in a CSV file:
+```bash
+python decryptor.py decrypt-csv-file --input-file encrypted.csv --output-file decrypted.csv --keys-file keys.json
+```
+
+### 5. Rotate Keys
+Rotate keys and increment the version:
+```bash
+python key_manager.py rotate-keys --json-file keys.json
+```
+
+---
+
+## 📂 File Structure
+
+```
+src/
+├── key_manager.py       # Key management (generation, rotation, loading)
+├── encryptor.py         # Encryption logic (single fields, CSV files)
+├── decryptor.py         # Decryption logic (single fields, CSV files)
+├── keys.json            # JSON file storing encryption keys
+├── __init__.py          # Package initialization
+└── readMe.md            # Documentation
+```
+
+---
+
+## 🧪 Example Workflow
+
+1. **Generate Keys**:
+   ```bash
+   python key_manager.py generate-keys --fields "name,ssn" --json-file keys.json
+   ```
+
+2. **Encrypt CSV**:
+   ```bash
+   python encryptor.py encrypt-csv-file --input-file input.csv --output-file encrypted.csv --keys-file keys.json
+   ```
+
+3. **Decrypt CSV**:
+   ```bash
+   python decryptor.py decrypt-csv-file --input-file encrypted.csv --output-file decrypted.csv --keys-file keys.json
+   ```
+
+4. **Rotate Keys**:
+   ```bash
+   python key_manager.py rotate-keys --json-file keys.json
+   ```
+
+---
+
+## 🔄 Future Enhancements
+
+- Integration with external key management systems (e.g., HashiCorp Vault, Azure Key Vault).
+- Support for JSON and Parquet file formats.
+- Batch processing with Pandas.
+- Faker integration for generating test data.
+
+---
+
+## 📜 License
+
+This project is licensed under the MIT License.

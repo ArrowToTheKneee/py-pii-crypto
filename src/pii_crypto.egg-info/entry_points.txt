@@ -1,0 +1,2 @@
+[console_scripts]
+pii-crypto = cli:app
