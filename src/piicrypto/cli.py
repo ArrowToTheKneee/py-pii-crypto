@@ -15,7 +15,7 @@ app.add_typer(data_app, name="data")
 
 @keys_app.command("generate")
 def generate_keys_command(
-    config_file: str = typer.Option(..., help="Path to config JSON file."),
+    config_file: str = typer.Option(..., help="Path to key provider config JSON file."),
     mode: str = typer.Option(..., help="Key provider mode: 'local', 'vault', etc"),
 ):
     """
@@ -27,7 +27,7 @@ def generate_keys_command(
 
 @keys_app.command("rotate")
 def rotate_keys_command(
-    config_file: str = typer.Option(..., help="Path to config JSON file."),
+    config_file: str = typer.Option(..., help="Path to key provider config JSON file."),
     mode: str = typer.Option(..., help="Key provider mode: 'local', 'vault', etc"),
 ):
     """
@@ -65,7 +65,7 @@ def decrypt_data_command(
 def encrypt_csv_command(
     input_file: str = typer.Option(..., help="Path to the input CSV file."),
     output_file: str = typer.Option(..., help="Path to the output CSV file."),
-    config_file: str = typer.Option(..., help="Path to config JSON file."),
+    config_file: str = typer.Option(..., help="Path to key provider config JSON file."),
     mode: str = typer.Option(..., help="Key provider mode: 'local', 'vault', etc"),
     aliases_file: str = typer.Option(
         None, help="Path to the JSON file containing field aliases."
@@ -82,7 +82,7 @@ def encrypt_csv_command(
 def decrypt_csv_command(
     input_file: str = typer.Option(..., help="Path to the input CSV file."),
     output_file: str = typer.Option(..., help="Path to the output CSV file."),
-    config_file: str = typer.Option(..., help="Path to config JSON file."),
+    config_file: str = typer.Option(..., help="Path to key provider config JSON file."),
     mode: str = typer.Option(..., help="Key provider mode: 'local', 'vault', etc"),
     aliases_file: str = typer.Option(
         None, help="Path to the JSON file containing field aliases."
