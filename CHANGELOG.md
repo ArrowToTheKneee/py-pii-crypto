@@ -31,3 +31,4 @@ All notable changes to this project will be documented in this file.
 
 ### Added
 - Extending tool to include different key providers like local, hashicorp vault, etc
+- Keep key provider config in a config json and provide it as an input for the providers and cli

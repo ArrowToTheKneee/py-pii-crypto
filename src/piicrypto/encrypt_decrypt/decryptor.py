@@ -4,7 +4,7 @@ import csv
 from Crypto.Cipher import AES
 
 from piicrypto.helpers.utils import find_best_match
-from piicrypto.key_provider.key_manager import get_keys_by_version
+from piicrypto.key_provider.base_key_provider import BaseKeyProvider
 
 
 def decrypt_data(key: str, data: str, nonce: str) -> str:
@@ -24,7 +24,10 @@ def decrypt_data(key: str, data: str, nonce: str) -> str:
 
 
 def decrypt_csv_file(
-    input_file: str, output_file: str, keys_file: str, aliases_file: str = None
+    input_file: str,
+    output_file: str,
+    key_provider: BaseKeyProvider,
+    aliases_file: str = None,
 ):
     """
     Decrypt specified fields in a CSV file using AES decryption.
@@ -43,13 +46,15 @@ def decrypt_csv_file(
                     find_best_match(field, aliases_file) if aliases_file else field
                 )
                 version, encrypted_data = row[field].split(":")
-                keys = get_keys_by_version(keys_file, version)
+                keys = key_provider.get_keys_by_version(version)
                 if not keys:
-                    raise ValueError(
-                        f"No keys found for version {version} in {keys_file}"
-                    )
+                    raise ValueError(f"No keys found for version {version}")
                 if field_alias in keys:
-                    row[field] = decrypt_data(
-                        keys[field_alias], encrypted_data, nonce=row["row_iv"]
-                    )
+                    try:
+                        row[field] = decrypt_data(
+                            keys[field_alias], encrypted_data, nonce=row["row_iv"]
+                        )
+                    except Exception as e:
+                        print(f"Error decrypting field '{field}': {e}")
+                        row[field] = f"{row[field]} Decryption Error"
             writer.writerow(row)

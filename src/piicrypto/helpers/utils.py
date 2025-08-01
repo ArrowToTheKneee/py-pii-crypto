@@ -1,8 +1,14 @@
+import base64
 import json
 
 from Crypto.Random import get_random_bytes
 from rapidfuzz import fuzz, utils
 from rapidfuzz.process import extractOne
+
+
+def generate_aes_key():
+    key_bytes = get_random_bytes(32)
+    return base64.b64encode(key_bytes).decode()
 
 
 def generate_nonce() -> bytes:

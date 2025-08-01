@@ -2,7 +2,7 @@ import typer
 
 from piicrypto.encrypt_decrypt.decryptor import decrypt_csv_file, decrypt_data
 from piicrypto.encrypt_decrypt.encryptor import encrypt_csv_file, encrypt_data
-from piicrypto.key_provider.key_manager import generate_keys, rotate_keys
+from piicrypto.key_provider.key_manager import KeyManager
 
 app = typer.Typer()
 keys_app = typer.Typer()
@@ -10,34 +10,31 @@ app.add_typer(keys_app, name="keys")
 csv_app = typer.Typer()
 app.add_typer(csv_app, name="csv")
 data_app = typer.Typer()
-app.add_typer(csv_app, name="data")
+app.add_typer(data_app, name="data")
 
 
 @keys_app.command("generate")
 def generate_keys_command(
-    fields: str = typer.Option(
-        ..., help="Comma-separated list of fields to generate keys for."
-    ),
-    keys_file: str = typer.Option(
-        ..., help="Path to the JSON file to save the generated keys."
-    ),
+    config_file: str = typer.Option(..., help="Path to config JSON file."),
+    mode: str = typer.Option(..., help="Key provider mode: 'local', 'vault', etc"),
 ):
     """
     Generate AES keys for the specified fields and save them to a JSON file.
     """
-    generate_keys(fields, keys_file)
+    key_manager = KeyManager(mode, config_file)
+    key_manager.generate_keys()
 
 
 @keys_app.command("rotate")
 def rotate_keys_command(
-    keys_file: str = typer.Option(
-        ..., help="Path to the JSON file containing the keys."
-    ),
+    config_file: str = typer.Option(..., help="Path to config JSON file."),
+    mode: str = typer.Option(..., help="Key provider mode: 'local', 'vault', etc"),
 ):
     """
     Rotate AES keys in the specified JSON file.
     """
-    rotate_keys(keys_file)
+    key_manager = KeyManager(mode, config_file)
+    key_manager.generate_keys()
 
 
 @data_app.command("encrypt")
@@ -49,7 +46,7 @@ def encrypt_data_command(
     """
     Encrypt data using AES encryption.
     """
-    encrypt_data(key, data)
+    encrypt_data(key, data, nonce)
 
 
 @data_app.command("decrypt")
@@ -68,9 +65,8 @@ def decrypt_data_command(
 def encrypt_csv_command(
     input_file: str = typer.Option(..., help="Path to the input CSV file."),
     output_file: str = typer.Option(..., help="Path to the output CSV file."),
-    keys_file: str = typer.Option(
-        ..., help="Path to the JSON file containing the keys."
-    ),
+    config_file: str = typer.Option(..., help="Path to config JSON file."),
+    mode: str = typer.Option(..., help="Key provider mode: 'local', 'vault', etc"),
     aliases_file: str = typer.Option(
         None, help="Path to the JSON file containing field aliases."
     ),
@@ -78,16 +74,16 @@ def encrypt_csv_command(
     """
     Encrypt specified fields in a CSV file using AES encryption.
     """
-    encrypt_csv_file(input_file, output_file, keys_file, aliases_file)
+    key_manager = KeyManager(mode, config_file)
+    encrypt_csv_file(input_file, output_file, key_manager, aliases_file)
 
 
 @csv_app.command("decrypt")
 def decrypt_csv_command(
     input_file: str = typer.Option(..., help="Path to the input CSV file."),
     output_file: str = typer.Option(..., help="Path to the output CSV file."),
-    keys_file: str = typer.Option(
-        ..., help="Path to the JSON file containing the keys."
-    ),
+    config_file: str = typer.Option(..., help="Path to config JSON file."),
+    mode: str = typer.Option(..., help="Key provider mode: 'local', 'vault', etc"),
     aliases_file: str = typer.Option(
         None, help="Path to the JSON file containing field aliases."
     ),
@@ -95,7 +91,8 @@ def decrypt_csv_command(
     """
     Decrypt specified fields in a CSV file using AES decryption.
     """
-    decrypt_csv_file(input_file, output_file, keys_file, aliases_file)
+    key_manager = KeyManager(mode, config_file)
+    decrypt_csv_file(input_file, output_file, key_manager, aliases_file)
 
 
 if __name__ == "__main__":

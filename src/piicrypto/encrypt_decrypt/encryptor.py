@@ -4,7 +4,7 @@ import csv
 from Crypto.Cipher import AES
 
 from piicrypto.helpers.utils import find_best_match, generate_nonce, skip_id_column
-from piicrypto.key_provider.key_manager import load_latest_keys
+from piicrypto.key_provider.base_key_provider import BaseKeyProvider
 
 
 def encrypt_data(key: str, data: str, nonce: bytes) -> str:
@@ -19,12 +19,15 @@ def encrypt_data(key: str, data: str, nonce: bytes) -> str:
 
 
 def encrypt_csv_file(
-    input_file: str, output_file: str, keys_file: str, aliases_file: str = None
+    input_file: str,
+    output_file: str,
+    key_provider: BaseKeyProvider,
+    aliases_file: str = None,
 ):
     """
     Encrypt specified fields in a CSV file using AES encryption.
     """
-    version, keys = load_latest_keys(keys_file)
+    version, keys = key_provider.load_latest_keys()
     with open(input_file, "r") as infile, open(output_file, "w") as outfile:
         reader = csv.DictReader(infile)
         fieldnames = reader.fieldnames + ["row_iv"]

@@ -53,7 +53,7 @@ The CLI is exposed as `pii-crypto`.
 
 ```
 
-pii-crypto generate-keys --fields "name,email,ssn" --json-file keys.json
+pii-crypto keys generate --fields "name,email,ssn" --json-file keys.json
 
 ```
 Creates a `keys.json` file with AES-256 keys under version v1.
