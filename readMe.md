@@ -1,6 +1,7 @@
+
 # 🔐 PII Crypto
 
-A Python-based CLI tool and library for encrypting and decrypting Personally Identifiable Information (PII) in CSV files using AES-GCM encryption with field-level key management.
+A Python-based CLI tool and library for encrypting and decrypting Personally Identifiable Information (PII) in CSV files using AES-GCM encryption. It features pluggable key providers, versioned key rotation, and field-level encryption/decryption with fuzzy alias matching.
 
 ---
 
@@ -8,18 +9,23 @@ A Python-based CLI tool and library for encrypting and decrypting Personally Ide
 
 ### 🔑 Key Management
 - AES-256 key generation per field
-- Versioned key storage (v1, v2, ...)
-- Key rotation support for seamless key updates
+- Versioned key storage (v1, v2, …)
+- Key rotation via CLI
+- Support for multiple key providers:
+  - **LocalKeyProvider** (default)
+  - **VaultKeyProvider** (template provided, extendable)
 
 ### 🔒 AES-GCM Encryption
 - Per-field encryption with authentication tags
-- Random 12-byte nonces per row
-- Version-tagged ciphertexts for forward and backward compatibility
+- 12-byte IV (nonce) generation per row
+- Base64-encoded output with tag and version metadata
+- Secure random IV and tag creation per record
 
-### 📂 CSV Processing
-- Field-level encryption/decryption in CSV files
-- Intelligent field matching via aliases (fuzzy matching with RapidFuzz)
-- Skips empty fields and non-PII columns (like row counters, or non-matching aliases)
+### 📂 CSV Field-Level Processing
+- Encrypt/decrypt selected fields in CSVs
+- Skips empty cells and non-PII fields
+- Row-level IV (nonce) included in output
+- Optional alias mapping for flexible column names
 
 ---
 
@@ -29,149 +35,129 @@ A Python-based CLI tool and library for encrypting and decrypting Personally Ide
 
 ### Installation
 
-Install via pip from your local directory:
-```
+Install from source:
 
+```bash
 pip install .
-
 ```
 
-Or install only the dependencies directly:
-```
+Or install dependencies manually:
 
+```bash
 pip install typer pycryptodome rapidfuzz
-
 ```
 
 ---
 
-## 🚀 Usage Guide
+## 🚀 CLI Usage
 
-The CLI is exposed as `pii-crypto`.
+Main CLI entry point:
 
-### 🔧 Generate Keys
-
+```bash
+pii-crypto
 ```
 
-pii-crypto keys generate --fields "name,email,ssn" --json-file keys.json
+### 🔑 Generate Keys
 
+```bash
+pii-crypto keys generate \
+  --config-file local_provider.json \
+  --mode local
 ```
-Creates a `keys.json` file with AES-256 keys under version v1.
 
 ### ♻️ Rotate Keys
 
+```bash
+pii-crypto keys rotate \
+  --config-file local_provider.json \
+  --mode local
 ```
-
-pii-crypto keys rotate --json-file keys.json
-
-```
-Adds a new key version (e.g., v2) for each existing field.
 
 ### 🔐 Encrypt CSV
 
-```
-
+```bash
 pii-crypto csv encrypt \
---input-file input.csv \
---output-file encrypted.csv \
---keys-file keys.json \
---aliases-file aliases.json
-
+  --input-file input_test.csv \
+  --output-file enc.csv \
+  --config-file local_provider.json \
+  --mode local \
+  --aliases-file aliases.json
 ```
-- Fields are matched against aliases (if provided)
-- Adds a `row_iv` column to each row
-- Automatically skips row numbers, empty fields, etc.
 
 ### 🔓 Decrypt CSV
 
-```
-
+```bash
 pii-crypto csv decrypt \
---input-file encrypted.csv \
---output-file decrypted.csv \
---keys-file keys.json \
---aliases-file aliases.json
-
+  --input-file enc.csv \
+  --output-file dec.csv \
+  --config-file local_provider.json \
+  --mode local \
+  --aliases-file aliases.json
 ```
-- Only fields encrypted with the current key version are decrypted
-- Fields not recognized in keys or aliases remain unchanged
 
 ### 🔐 Encrypt Raw Data
 
-```
-
+```bash
 pii-crypto data encrypt \
---key <base64_key> \
---data "Sensitive Info" \
---nonce <base64_nonce>
-
+  --key <base64_key> \
+  --data "Sensitive Info" \
+  --nonce <base64_nonce>
 ```
 
 ### 🔓 Decrypt Raw Data
 
-```
-
+```bash
 pii-crypto data decrypt \
---key <base64_key> \
---data <ciphertext> \
---nonce <base64_nonce>
-
+  --key <base64_key> \
+  --data <ciphertext> \
+  --nonce <base64_nonce>
 ```
 
 ---
 
-## 🧠 Field Aliasing with Fuzzy Matching
+## 🧠 Field Aliasing
 
-The CLI supports field aliasing via an optional `aliases.json` file:
-```
+Alias matching for columns using JSON:
 
+```json
 {
-"ssn": ["social_security_number", "ss_number"],
-"dob": ["date_of_birth", "birthdate"]
+  "ssn": ["social_security_number", "ss_number"],
+  "dob": ["birthdate", "date_of_birth"]
 }
-
 ```
-This allows the tool to encrypt/decrypt even if column names vary.
 
 ---
 
-## 📦 Project Structure
+## 📁 Project Structure
 
 ```
-
-.
-├── cli.py               \# CLI entry point using Typer
-├── encryptor.py         \# CSV and string encryption logic
-├── decryptor.py         \# CSV and string decryption logic
-├── key_manager.py       \# Key generation, rotation, and loading
-├── helpers.py           \# Utility functions: nonce generation, alias matching
-├── pyproject.toml       \# Build system and dependencies
-└── readMe.md            \# 📘 You're here!
-
+src/piicrypto/
+├── cli.py                         # Typer CLI entry point
+├── encrypt_decrypt/
+│   ├── encryptor.py               # AES-GCM encryption logic
+│   ├── decryptor.py               # AES-GCM decryption logic
+├── key_provider/
+│   ├── key_manager.py             # Versioned key generation and rotation
+│   ├── key_provider_factory.py    # Provider interface handler
+│   ├── local_key_provider.py      # Default local provider
+│   └── vault_key_provider.py      # Template for remote providers
+├── helpers/
+│   └── utils.py                   # Nonce generation, alias matching, etc.
 ```
 
 ---
 
 ## 🧪 Sample Workflow
 
+```bash
+pii-crypto keys generate --config-file keys.json --mode local
+pii-crypto csv encrypt --input-file input_test.csv --output-file enc.csv --config-file local_provider.json --mode local --aliases-file aliases.json
+pii-crypto csv decrypt --input-file enc.csv --output-file dec.csv --config-file local_provider.json --mode local --aliases-file aliases.json
+pii-crypto keys rotate --config-file keys.json --mode local
 ```
 
+---
 
-# Generate initial keys
+## 📜 License
 
-pii-crypto keys generate --fields "name,email" --json-file keys.json
-
-# Encrypt a CSV
-
-pii-crypto csv encrypt --input-file raw.csv --output-file encrypted.csv --keys-file keys.json
-
-# Decrypt it back
-
-pii-crypto csv decrypt --input-file encrypted.csv --output-file decrypted.csv --keys-file keys.json
-
-# Rotate keys as needed
-
-pii-crypto keys rotate --json-file keys.json
-
-```
-
+MIT License
