@@ -38,7 +38,7 @@ class VaultKeyProvider(BaseKeyProvider):
         print(f"Generating keys for fields: {fields_list}")
         for field in fields_list:
             keys["v1"][field] = generate_aes_key()
-        # Here you would implement the logic to save `keys` to Vault
+        # Implement the logic to save `keys` to Vault
         # For example, using a Vault client library to write the keys
         print(f"Keys generated and saved to Vault at {self.vault_url}")
 
@@ -46,7 +46,7 @@ class VaultKeyProvider(BaseKeyProvider):
         """
         Rotate AES keys in the Vault.
         """
-        # Here you would implement the logic to read current keys from Vault,
+        # Implement the logic to read current keys from Vault,
         # generate new keys, and write them back to Vault.
         print(f"Rotating keys in Vault at {self.vault_url}")
 
@@ -54,7 +54,7 @@ class VaultKeyProvider(BaseKeyProvider):
         """
         Load latest AES keys from Vault.
         """
-        # Here you would implement the logic to read the latest keys from Vault.
+        # Implement the logic to read the latest keys from Vault.
         print(f"Loading latest keys from Vault at {self.vault_url}")
 
     def get_keys_by_version(self, version: str):
@@ -62,5 +62,5 @@ class VaultKeyProvider(BaseKeyProvider):
         Load AES keys for a specific version from Vault.
         :param version: Version of the keys to load.
         """
-        # Here you would implement the logic to read keys for a specific version from Vault.
+        # Implement the logic to read keys for a specific version from Vault.
         print(f"Loading keys for version {version} from Vault at {self.vault_url}")
