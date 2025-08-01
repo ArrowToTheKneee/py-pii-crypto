@@ -1,9 +1,11 @@
 import json
-import os
 from collections import defaultdict
 
+from piicrypto.helpers.logger_helper import setup_logger
 from piicrypto.helpers.utils import generate_aes_key
 from piicrypto.key_provider.base_key_provider import BaseKeyProvider
+
+logger = setup_logger(name=__name__)
 
 
 class VaultKeyProvider(BaseKeyProvider):
@@ -40,7 +42,7 @@ class VaultKeyProvider(BaseKeyProvider):
             keys["v1"][field] = generate_aes_key()
         # Implement the logic to save `keys` to Vault
         # For example, using a Vault client library to write the keys
-        print(f"Keys generated and saved to Vault at {self.vault_url}")
+        logger.info(f"Keys generated and saved to Vault at {self.vault_url}")
 
     def rotate_keys(self):
         """
@@ -48,14 +50,14 @@ class VaultKeyProvider(BaseKeyProvider):
         """
         # Implement the logic to read current keys from Vault,
         # generate new keys, and write them back to Vault.
-        print(f"Rotating keys in Vault at {self.vault_url}")
+        logger.info(f"Rotating keys in Vault at {self.vault_url}")
 
     def load_latest_keys(self):
         """
         Load latest AES keys from Vault.
         """
         # Implement the logic to read the latest keys from Vault.
-        print(f"Loading latest keys from Vault at {self.vault_url}")
+        logger.info(f"Loading latest keys from Vault at {self.vault_url}")
 
     def get_keys_by_version(self, version: str):
         """
@@ -63,4 +65,6 @@ class VaultKeyProvider(BaseKeyProvider):
         :param version: Version of the keys to load.
         """
         # Implement the logic to read keys for a specific version from Vault.
-        print(f"Loading keys for version {version} from Vault at {self.vault_url}")
+        logger.info(
+            f"Loading keys for version {version} from Vault at {self.vault_url}"
+        )

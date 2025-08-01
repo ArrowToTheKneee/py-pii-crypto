@@ -5,6 +5,10 @@ from Crypto.Random import get_random_bytes
 from rapidfuzz import fuzz, utils
 from rapidfuzz.process import extractOne
 
+from piicrypto.helpers.logger_helper import setup_logger
+
+logger = setup_logger(name=__name__)
+
 
 def generate_aes_key():
     key_bytes = get_random_bytes(32)
@@ -31,7 +35,7 @@ def find_best_match(query: str, aliases_file: str) -> str:
         scorer=fuzz.token_set_ratio,
         processor=utils.default_process,
     )
-    print(f"Best match for '{query}': '{match}' with similarity {similarity}")
+    logger.info(f"Best match for '{query}': '{match}' with similarity {similarity}")
     return reverse_lookup[match] if similarity >= 95 else query
 
 

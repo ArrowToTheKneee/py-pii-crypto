@@ -2,8 +2,11 @@ import json
 import os
 from collections import defaultdict
 
+from piicrypto.helpers.logger_helper import setup_logger
 from piicrypto.helpers.utils import generate_aes_key
 from piicrypto.key_provider.base_key_provider import BaseKeyProvider
+
+logger = setup_logger(name=__name__)
 
 
 class LocalKeyProvider(BaseKeyProvider):
@@ -28,12 +31,12 @@ class LocalKeyProvider(BaseKeyProvider):
         self.fields = config.get("fields", "")
         self.json_file = config.get("json_file", "keys.json")
         if not os.path.exists(self.json_file):
-            print(
+            logger.info(
                 f"[LocalKeyProvider] Key file '{self.json_file}' does not exist. Generating keys."
             )
             self.generate_keys()
         else:
-            print(
+            logger.info(
                 f"[LocalKeyProvider] Key file '{self.json_file}' already exists. Using existing keys."
             )
 
@@ -54,7 +57,7 @@ class LocalKeyProvider(BaseKeyProvider):
         """
         fields_list = self.fields.split(",")
         keys = defaultdict(dict)
-        print(f"Generating keys for fields: {fields_list}")
+        logger.info(f"Generating keys for fields: {fields_list}")
         for field in fields_list:
             keys["v1"][field] = generate_aes_key()
         with open(self.json_file, "w") as f:
@@ -73,7 +76,7 @@ class LocalKeyProvider(BaseKeyProvider):
 
         with open(self.json_file, "w") as f:
             json.dump(keys, f, indent=4)
-        print(f"Rotated keys to version {new_version}")
+        logger.info(f"Rotated keys to version {new_version}")
 
     def load_latest_keys(self):
         """

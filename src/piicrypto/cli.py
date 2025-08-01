@@ -2,6 +2,7 @@ import typer
 
 from piicrypto.encrypt_decrypt.decryptor import decrypt_csv_file, decrypt_data
 from piicrypto.encrypt_decrypt.encryptor import encrypt_csv_file, encrypt_data
+from piicrypto.helpers.logger_helper import setup_logger
 from piicrypto.key_provider.key_manager import KeyManager
 
 app = typer.Typer()
@@ -11,6 +12,20 @@ csv_app = typer.Typer()
 app.add_typer(csv_app, name="csv")
 data_app = typer.Typer()
 app.add_typer(data_app, name="data")
+
+logger = None
+
+
+@app.callback()
+def main(log_dir: str = typer.Option("logs", help="Directory to store log files.")):
+    """
+    Setup the logger for the CLI application.
+    """
+    global logger
+    logger = setup_logger(
+        log_dir=log_dir, base_filename="piicrypto", name="piicrypto_cli"
+    )
+    logger.info("PII Crypto CLI started.")
 
 
 @keys_app.command("generate")
@@ -23,6 +38,7 @@ def generate_keys_command(
     """
     key_manager = KeyManager(mode, config_file)
     key_manager.generate_keys()
+    logger.info("Keys generated successfully.")
 
 
 @keys_app.command("rotate")
@@ -34,7 +50,8 @@ def rotate_keys_command(
     Rotate AES keys in the specified JSON file.
     """
     key_manager = KeyManager(mode, config_file)
-    key_manager.generate_keys()
+    key_manager.rotate_keys()
+    logger.info("Keys rotated successfully.")
 
 
 @data_app.command("encrypt")
@@ -47,6 +64,7 @@ def encrypt_data_command(
     Encrypt data using AES encryption.
     """
     encrypt_data(key, data, nonce)
+    logger.info("Data encrypted successfully.")
 
 
 @data_app.command("decrypt")
@@ -59,6 +77,7 @@ def decrypt_data_command(
     Decrypt data using AES decryption.
     """
     decrypt_data(key, data, nonce)
+    logger.info("Data decrypted successfully.")
 
 
 @csv_app.command("encrypt")
@@ -76,6 +95,7 @@ def encrypt_csv_command(
     """
     key_manager = KeyManager(mode, config_file)
     encrypt_csv_file(input_file, output_file, key_manager, aliases_file)
+    logger.info("CSV file encrypted successfully.")
 
 
 @csv_app.command("decrypt")
@@ -93,6 +113,7 @@ def decrypt_csv_command(
     """
     key_manager = KeyManager(mode, config_file)
     decrypt_csv_file(input_file, output_file, key_manager, aliases_file)
+    logger.info("CSV file decrypted successfully.")
 
 
 if __name__ == "__main__":

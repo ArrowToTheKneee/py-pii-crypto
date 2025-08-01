@@ -3,8 +3,11 @@ import csv
 
 from Crypto.Cipher import AES
 
+from piicrypto.helpers.logger_helper import setup_logger
 from piicrypto.helpers.utils import find_best_match
 from piicrypto.key_provider.base_key_provider import BaseKeyProvider
+
+logger = setup_logger(name=__name__)
 
 
 def decrypt_data(key: str, data: str, nonce: str) -> str:
@@ -55,6 +58,6 @@ def decrypt_csv_file(
                             keys[field_alias], encrypted_data, nonce=row["row_iv"]
                         )
                     except Exception as e:
-                        print(f"Error decrypting field '{field}': {e}")
+                        logger.info(f"Error decrypting field '{field}': {e}")
                         row[field] = f"{row[field]} Decryption Error"
             writer.writerow(row)
