@@ -1,163 +1,115 @@
 
-# 🔐 PII Crypto
+# 📦 PII Crypto
 
-A Python-based CLI tool and library for encrypting and decrypting Personally Identifiable Information (PII) in CSV files using AES-GCM encryption. It features pluggable key providers, versioned key rotation, and field-level encryption/decryption with fuzzy alias matching.
-
----
-
-## ✅ Features
-
-### 🔑 Key Management
-- AES-256 key generation per field
-- Versioned key storage (v1, v2, …)
-- Key rotation via CLI
-- Support for multiple key providers:
-  - **LocalKeyProvider** (default)
-  - **VaultKeyProvider** (template provided, extendable)
-
-### 🔒 AES-GCM Encryption
-- Per-field encryption with authentication tags
-- 12-byte IV (nonce) generation per row
-- Base64-encoded output with tag and version metadata
-- Secure random IV and tag creation per record
-
-### 📂 CSV Field-Level Processing
-- Encrypt/decrypt selected fields in CSVs
-- Skips empty cells and non-PII fields
-- Row-level IV (nonce) included in output
-- Optional alias mapping for flexible column names
+**PII Crypto** is a Python module and CLI tool designed to securely encrypt and decrypt Personally Identifiable Information (PII) in CSV files or string inputs using AES-GCM encryption. It supports configurable key management and provides a flexible framework for protecting sensitive data in transit and storage.
 
 ---
 
-## 🧰 Requirements
+## 🔧 Features
 
-- Python 3.7+
-
-### Installation
-
-Install from source:
-
-```bash
-pip install .
-```
-
-Or install dependencies manually:
-
-```bash
-pip install typer pycryptodome rapidfuzz
-```
+- AES-GCM encryption and decryption
+- Field-level encryption for CSV files
+- Flexible key management using provider configs
+- CLI support via `typer` for easy usage
+- Logging support for auditability
+- Alias-based field mapping
 
 ---
 
-## 🚀 CLI Usage
-
-Main CLI entry point:
-
-```bash
-pii-crypto
-```
-
-### 🔑 Generate Keys
-
-```bash
-pii-crypto keys generate \
-  --config-file local_provider.json \
-  --mode local
-```
-
-### ♻️ Rotate Keys
-
-```bash
-pii-crypto keys rotate \
-  --config-file local_provider.json \
-  --mode local
-```
-
-### 🔐 Encrypt CSV
-
-```bash
-pii-crypto csv encrypt \
-  --input-file input_test.csv \
-  --output-file enc.csv \
-  --config-file local_provider.json \
-  --mode local \
-  --aliases-file aliases.json
-```
-
-### 🔓 Decrypt CSV
-
-```bash
-pii-crypto csv decrypt \
-  --input-file enc.csv \
-  --output-file dec.csv \
-  --config-file local_provider.json \
-  --mode local \
-  --aliases-file aliases.json
-```
-
-### 🔐 Encrypt Raw Data
-
-```bash
-pii-crypto data encrypt \
-  --key <base64_key> \
-  --data "Sensitive Info" \
-  --nonce <base64_nonce>
-```
-
-### 🔓 Decrypt Raw Data
-
-```bash
-pii-crypto data decrypt \
-  --key <base64_key> \
-  --data <ciphertext> \
-  --nonce <base64_nonce>
-```
-
----
-
-## 🧠 Field Aliasing
-
-Alias matching for columns using JSON:
-
-```json
-{
-  "ssn": ["social_security_number", "ss_number"],
-  "dob": ["birthdate", "date_of_birth"]
-}
-```
-
----
-
-## 📁 Project Structure
+## 🗂️ Project Structure
 
 ```
 src/piicrypto/
-├── cli.py                         # Typer CLI entry point
-├── encrypt_decrypt/
-│   ├── encryptor.py               # AES-GCM encryption logic
-│   ├── decryptor.py               # AES-GCM decryption logic
-├── key_provider/
-│   ├── key_manager.py             # Versioned key generation and rotation
-│   ├── key_provider_factory.py    # Provider interface handler
-│   ├── local_key_provider.py      # Default local provider
-│   └── vault_key_provider.py      # Template for remote providers
-├── helpers/
-│   └── utils.py                   # Nonce generation, alias matching, etc.
+│
+├── cli.py                  # CLI entry point
+├── encrypt_decrypt/        # Encryption and decryption logic
+├── helpers/                # Utility and logging functions
+├── key_provider/           # Key management interface and implementation
+└── __init__.py             # Module init
+examples/                   # Example inputs, outputs, and key configs
 ```
 
 ---
 
-## 🧪 Sample Workflow
+## 🚀 Installation
 
 ```bash
-pii-crypto keys generate --config-file keys.json --mode local
-pii-crypto csv encrypt --input-file input_test.csv --output-file enc.csv --config-file local_provider.json --mode local --aliases-file aliases.json
-pii-crypto csv decrypt --input-file enc.csv --output-file dec.csv --config-file local_provider.json --mode local --aliases-file aliases.json
-pii-crypto keys rotate --config-file keys.json --mode local
+git clone https://github.com/ArrowToTheKneee/py-pii-crypto
+cd py-pii-crypto
+pip install -e .
 ```
 
 ---
 
-## 📜 License
+## 📌 Usage
 
-MIT License
+### CLI Commands
+
+**Generate Keys**
+```bash
+pii-crypto --log-dir logs keys generate --config-file examples/local_provider.json --mode local
+```
+
+**Encrypt CSV**
+```bash
+pii-crypto --log-dir logs csv encrypt --input-file examples/input_test.csv --output-file examples/enc.csv --config-file examples/local_provider.json --mode local
+```
+
+**Decrypt CSV**
+```bash
+pii-crypto --log-dir logs csv decrypt --input-file examples/enc.csv --output-file examples/dec.csv --config-file examples/local_provider.json --mode local
+```
+
+---
+
+## 📁 Example Files
+
+- `examples/input_test.csv`: Sample input file
+- `examples/enc.csv`: Encrypted CSV output
+- `examples/dec.csv`: Decrypted CSV output
+- `examples/local_provider.json`: Sample key provider config
+- `examples/aliases.json`: Optional field aliasing config
+
+---
+
+## ✅ Requirements
+
+- Python 3.8+
+- `pycryptodome`
+- `typer`
+- `pydantic`
+
+Dependencies are listed in `pyproject.toml`.
+
+---
+
+## 🔒 Security Note
+
+- AES-GCM is used with unique nonces for every encryption to ensure confidentiality and integrity.
+- The system supports pluggable key providers. You can extend `BaseKeyProvider` to implement secure remote key stores.
+
+---
+
+## 🧠 Possible Enhancements
+
+| Enhancement | Description |
+|-------------|-------------|
+| ✅ Field-level policy control | Allow users to specify which fields to encrypt or skip via config |
+| ✅ Schema validation | Add input CSV schema validation using Pydantic or similar |
+| ✅ Multiple encryption algorithms | Support RSA or other ciphers optionally |
+| ✅ UI layer | A web UI to upload CSV, select fields, and download encrypted results |
+| ✅ Integration with cloud KMS | Support AWS KMS, GCP KMS, or Azure Key Vault |
+| ✅ Metadata storage | Store nonce and encryption metadata in structured headers or external files |
+| ✅ Docker support | Add Dockerfile for containerization |
+
+---
+
+## 👩‍💻 Contributing
+
+Contributions, suggestions, and issues are welcome! Please fork the repo and submit a pull request.
+
+---
+
+## 📄 License
+
+This project is licensed under the MIT License.
