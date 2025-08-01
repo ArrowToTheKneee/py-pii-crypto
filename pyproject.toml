@@ -21,5 +21,9 @@ classifiers = [
   "Operating System :: OS Independent"
 ]
 
+[tool.setuptools]
+package-dir = {"" = "src"}
+packages = ["piicrypto", "piicrypto.encrypt_decrypt", "piicrypto.helpers", "piicrypto.key_provider"]
+
 [project.scripts]
-pii-crypto = "cli:app"
+pii-crypto = "piicrypto.cli:app"

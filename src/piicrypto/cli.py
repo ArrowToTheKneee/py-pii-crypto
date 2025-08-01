@@ -1,8 +1,8 @@
 import typer
 
-from decryptor import decrypt_csv_file, decrypt_data
-from encryptor import encrypt_csv_file, encrypt_data
-from key_manager import generate_keys, rotate_keys
+from piicrypto.encrypt_decrypt.decryptor import decrypt_csv_file, decrypt_data
+from piicrypto.encrypt_decrypt.encryptor import encrypt_csv_file, encrypt_data
+from piicrypto.key_provider.key_manager import generate_keys, rotate_keys
 
 app = typer.Typer()
 keys_app = typer.Typer()

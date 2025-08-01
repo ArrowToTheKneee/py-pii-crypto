@@ -3,8 +3,8 @@ import csv
 
 from Crypto.Cipher import AES
 
-from helpers import find_best_match, generate_nonce, skip_id_column
-from key_manager import load_latest_keys
+from piicrypto.helpers.utils import find_best_match, generate_nonce, skip_id_column
+from piicrypto.key_provider.key_manager import load_latest_keys
 
 
 def encrypt_data(key: str, data: str, nonce: bytes) -> str:

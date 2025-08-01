@@ -24,3 +24,10 @@ All notable changes to this project will be documented in this file.
 ### Added
 - Adding logic to skip encrypting row numbering/id column
 - Decryption of csv files encrypted with older version keys
+
+---
+
+## [0.4.0] - 2025-08-01
+
+### Added
+- Extending tool to include different key providers like local, hashicorp vault, etc
