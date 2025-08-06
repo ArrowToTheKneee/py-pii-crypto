@@ -92,14 +92,14 @@ Dependencies are listed in `pyproject.toml`.
 
 ## 🧠 Possible Enhancements
 
-| Enhancement | Description |
-|-------------|-------------|
+| Enhancement | Description | Status |
+|-------------|-------------|--------|
 | ✅ Field-level policy control | Allow users to specify which fields to encrypt or skip via config |
 | ✅ Schema validation | Add input CSV schema validation using Pydantic or similar |
 | ✅ Multiple encryption algorithms | Support RSA or other ciphers optionally |
 | ✅ UI layer | A web UI to upload CSV, select fields, and download encrypted results |
 | ✅ Integration with cloud KMS | Support AWS KMS, GCP KMS, or Azure Key Vault |
-| ✅ Metadata storage | Store nonce and encryption metadata in structured headers or external files |
+| ✅ Metadata storage | Store nonce and encryption metadata in structured headers or external files | Done. Nonce is stored per row, in row_iv column, in the enc or dec file. Metadata creation enabled by create_metadata option in cli for csv encryption and csv decryption
 | ✅ Docker support | Add Dockerfile for containerization |
 
 ---
