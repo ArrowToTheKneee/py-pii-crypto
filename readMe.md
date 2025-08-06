@@ -70,6 +70,7 @@ pii-crypto --log-dir logs csv decrypt --input-file examples/enc.csv --output-fil
 - `examples/dec.csv`: Decrypted CSV output
 - `examples/local_provider.json`: Sample key provider config
 - `examples/aliases.json`: Optional field aliasing config
+- `examples/dec.csv.metadata.json`: Metadata file created
 
 ---
 
