@@ -89,13 +89,17 @@ def encrypt_csv_command(
     aliases_file: str = typer.Option(
         None, help="Path to the JSON file containing field aliases."
     ),
+    create_metadata: bool = typer.Option(
+        False, help="Generate metadata for the keys and output file."
+    ),
 ):
     """
     Encrypt specified fields in a CSV file using AES encryption.
     """
-    key_manager = KeyManager(mode, config_file)
-    encrypt_csv_file(input_file, output_file, key_manager, aliases_file)
-    logger.info("CSV file encrypted successfully.")
+
+    encrypt_csv_file(
+        input_file, output_file, mode, config_file, aliases_file, create_metadata
+    )
 
 
 @csv_app.command("decrypt")
@@ -107,13 +111,17 @@ def decrypt_csv_command(
     aliases_file: str = typer.Option(
         None, help="Path to the JSON file containing field aliases."
     ),
+    create_metadata: bool = typer.Option(
+        False, help="Generate metadata for the keys and output file."
+    ),
 ):
     """
     Decrypt specified fields in a CSV file using AES decryption.
     """
-    key_manager = KeyManager(mode, config_file)
-    decrypt_csv_file(input_file, output_file, key_manager, aliases_file)
-    logger.info("CSV file decrypted successfully.")
+
+    decrypt_csv_file(
+        input_file, output_file, mode, config_file, aliases_file, create_metadata
+    )
 
 
 if __name__ == "__main__":

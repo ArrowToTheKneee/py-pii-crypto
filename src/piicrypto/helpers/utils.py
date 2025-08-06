@@ -1,5 +1,6 @@
 import base64
 import json
+from datetime import datetime
 
 from Crypto.Random import get_random_bytes
 from rapidfuzz import fuzz, utils
@@ -50,3 +51,19 @@ def skip_id_column(row_number: int, value: dict, field_name: str) -> bool:
     if stripped.isdigit() and int(stripped) == row_number:
         return True
     return False
+
+
+def generate_metadata(
+    keys_version: str, out_file: str, mode: str, operation: str
+) -> dict:
+    """
+    Generate metadata for the keys.
+    """
+    metadata = {
+        "keys_version": out_file,
+        "key_provider_mode": mode,
+        "operation": operation,
+        "output_file": out_file,
+        "created_at": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+    }
+    return metadata

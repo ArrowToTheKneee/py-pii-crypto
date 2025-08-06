@@ -1,10 +1,19 @@
 import base64
 import csv
+import json
 
 from Crypto.Cipher import AES
 
-from piicrypto.helpers.utils import find_best_match, generate_nonce, skip_id_column
-from piicrypto.key_provider.base_key_provider import BaseKeyProvider
+from piicrypto.helpers.logger_helper import setup_logger
+from piicrypto.helpers.utils import (
+    find_best_match,
+    generate_metadata,
+    generate_nonce,
+    skip_id_column,
+)
+from piicrypto.key_provider.key_manager import KeyManager
+
+logger = setup_logger(name=__name__)
 
 
 def encrypt_data(key: str, data: str, nonce: bytes) -> str:
@@ -21,13 +30,16 @@ def encrypt_data(key: str, data: str, nonce: bytes) -> str:
 def encrypt_csv_file(
     input_file: str,
     output_file: str,
-    key_provider: BaseKeyProvider,
+    mode: str,
+    key_provider_config: str,
     aliases_file: str = None,
+    create_metadata: bool = False,
 ):
     """
     Encrypt specified fields in a CSV file using AES encryption.
     """
-    version, keys = key_provider.load_latest_keys()
+    key_manager = KeyManager(mode, key_provider_config)
+    version, keys = key_manager.load_latest_keys()
     with open(input_file, "r") as infile, open(output_file, "w") as outfile:
         reader = csv.DictReader(infile)
         fieldnames = reader.fieldnames + ["row_iv"]
@@ -48,3 +60,14 @@ def encrypt_csv_file(
                     )
             row["row_iv"] = base64.b64encode(nonce).decode()
             writer.writerow(row)
+    if create_metadata:
+        metadata = generate_metadata(
+            keys_version=version,
+            out_file=output_file,
+            mode=mode,
+            operation="encrypt",
+        )
+        with open(f"{output_file}.metadata.json", "w") as meta_file:
+            json.dump(metadata, meta_file, indent=4)
+        logger.info(f"Metadata saved to {output_file}.metadata.json")
+    logger.info(f"CSV file encrypted successfully at {output_file}.")
