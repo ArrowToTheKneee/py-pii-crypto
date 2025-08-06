@@ -50,14 +50,14 @@ pip install -e .
 pii-crypto --log-dir logs keys generate --config-file examples/local_provider.json --mode local
 ```
 
-**Encrypt CSV**
+**Encrypt CSV(with create metadata)**
 ```bash
-pii-crypto --log-dir logs csv encrypt --input-file examples/input_test.csv --output-file examples/enc.csv --config-file examples/local_provider.json --mode local
+pii-crypto --log-dir logs csv encrypt --input-file examples/input_test.csv --output-file examples/enc.csv --config-file examples/local_provider.json --mode local --create-metadata
 ```
 
-**Decrypt CSV**
+**Decrypt CSV(with create metadata)**
 ```bash
-pii-crypto --log-dir logs csv decrypt --input-file examples/enc.csv --output-file examples/dec.csv --config-file examples/local_provider.json --mode local
+pii-crypto --log-dir logs csv decrypt --input-file examples/enc.csv --output-file examples/dec.csv --config-file examples/local_provider.json --mode local --create-metadata
 ```
 
 ---
