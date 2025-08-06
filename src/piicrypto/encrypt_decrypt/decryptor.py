@@ -38,7 +38,9 @@ def decrypt_csv_file(
     """
     Decrypt specified fields in a CSV file using AES decryption.
     """
+    logger.info(f"Starting decryption process for {input_file} to {output_file}")
     key_manager = KeyManager(mode, key_provider_config)
+    logger.info(f"Loading keys for mode: {mode} from {key_provider_config}")
     with open(input_file, "r") as infile, open(output_file, "w") as outfile:
         reader = csv.DictReader(infile)
         fieldnames = reader.fieldnames
@@ -55,6 +57,7 @@ def decrypt_csv_file(
                 version, encrypted_data = row[field].split(":")
                 keys = key_manager.get_keys_by_version(version)
                 if not keys:
+                    logger.error(f"No keys found for version {version}")
                     raise ValueError(f"No keys found for version {version}")
                 if field_alias in keys:
                     try:

@@ -19,7 +19,7 @@ def setup_logger(
             "[%(asctime)s] %(levelname)s - %(name)s - %(message)s"
         )
 
-        timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+        timestamp = datetime.now().strftime("%Y-%m-%d")
         os.makedirs(log_dir, exist_ok=True)
         log_file = os.path.join(log_dir, f"{base_filename}_{timestamp}.log")
 

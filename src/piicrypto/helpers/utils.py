@@ -1,6 +1,7 @@
 import base64
 import json
 from datetime import datetime
+from importlib.metadata import version
 
 from Crypto.Random import get_random_bytes
 from rapidfuzz import fuzz, utils
@@ -60,10 +61,11 @@ def generate_metadata(
     Generate metadata for the keys.
     """
     metadata = {
-        "keys_version": out_file,
+        "keys_version": keys_version,
         "key_provider_mode": mode,
         "operation": operation,
         "output_file": out_file,
         "created_at": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+        "package_version": version("pii-crypto"),
     }
     return metadata

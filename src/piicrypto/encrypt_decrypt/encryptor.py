@@ -38,8 +38,12 @@ def encrypt_csv_file(
     """
     Encrypt specified fields in a CSV file using AES encryption.
     """
+    logger.info(f"Starting Encryption process for {input_file} to {output_file}")
     key_manager = KeyManager(mode, key_provider_config)
     version, keys = key_manager.load_latest_keys()
+    logger.info(
+        f"Loaded keys for mode: {mode}, for version: {version} from {key_provider_config}"
+    )
     with open(input_file, "r") as infile, open(output_file, "w") as outfile:
         reader = csv.DictReader(infile)
         fieldnames = reader.fieldnames + ["row_iv"]
