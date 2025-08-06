@@ -46,7 +46,7 @@ def decrypt_csv_file(
         fieldnames = reader.fieldnames
         writer = csv.DictWriter(outfile, fieldnames=fieldnames)
         writer.writeheader()
-
+        decrypted_fields = set()
         for row in reader:
             for field in fieldnames:
                 if field == "row_iv" or not row[field] or ":" not in row[field]:
@@ -64,6 +64,7 @@ def decrypt_csv_file(
                         row[field] = decrypt_data(
                             keys[field_alias], encrypted_data, nonce=row["row_iv"]
                         )
+                        decrypted_fields.add(field)
                     except Exception as e:
                         logger.error(f"Error decrypting field '{field}': {e}")
                         row[field] = f"{row[field]} Decryption Error"
@@ -74,6 +75,7 @@ def decrypt_csv_file(
             out_file=output_file,
             mode=mode,
             operation="decrypt",
+            operation_fields=decrypted_fields,
         )
         with open(f"{output_file}.metadata.json", "w") as meta_file:
             json.dump(metadata, meta_file, indent=4)

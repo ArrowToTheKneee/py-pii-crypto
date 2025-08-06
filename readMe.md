@@ -13,6 +13,7 @@
 - CLI support via `typer` for easy usage
 - Logging support for auditability
 - Alias-based field mapping
+- Metadata storage for auditability 
 
 ---
 

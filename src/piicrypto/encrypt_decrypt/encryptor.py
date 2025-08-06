@@ -49,7 +49,7 @@ def encrypt_csv_file(
         fieldnames = reader.fieldnames + ["row_iv"]
         writer = csv.DictWriter(outfile, fieldnames=fieldnames)
         writer.writeheader()
-
+        encrypted_fields = set()
         for row_num, row in enumerate(reader):
             nonce = generate_nonce()
             for field in reader.fieldnames:
@@ -62,6 +62,7 @@ def encrypt_csv_file(
                     row[field] = f"{version}:" + encrypt_data(
                         keys[field_alias], row[field], nonce
                     )
+                    encrypted_fields.add(field)
             row["row_iv"] = base64.b64encode(nonce).decode()
             writer.writerow(row)
     if create_metadata:
@@ -70,6 +71,7 @@ def encrypt_csv_file(
             out_file=output_file,
             mode=mode,
             operation="encrypt",
+            operation_fields=encrypted_fields,
         )
         with open(f"{output_file}.metadata.json", "w") as meta_file:
             json.dump(metadata, meta_file, indent=4)

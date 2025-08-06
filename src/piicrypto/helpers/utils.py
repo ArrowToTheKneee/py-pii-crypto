@@ -55,7 +55,7 @@ def skip_id_column(row_number: int, value: dict, field_name: str) -> bool:
 
 
 def generate_metadata(
-    keys_version: str, out_file: str, mode: str, operation: str
+    keys_version: str, out_file: str, mode: str, operation: str, operation_fields: set
 ) -> dict:
     """
     Generate metadata for the keys.
@@ -64,6 +64,7 @@ def generate_metadata(
         "keys_version": keys_version,
         "key_provider_mode": mode,
         "operation": operation,
+        "operation_fields": list(operation_fields),
         "output_file": out_file,
         "created_at": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
         "package_version": version("pii-crypto"),

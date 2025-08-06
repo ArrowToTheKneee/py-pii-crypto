@@ -2,7 +2,13 @@
     "keys_version": "v2",
     "key_provider_mode": "local",
     "operation": "decrypt",
+    "operation_fields": [
+        "name",
+        "Date of Birth",
+        "Social Security Number",
+        "address"
+    ],
     "output_file": "/home/apawar/py-pii-crypto/examples/dec.csv",
-    "created_at": "2025-08-05 20:56:21",
+    "created_at": "2025-08-05 21:17:41",
     "package_version": "0.1.0"
 }
