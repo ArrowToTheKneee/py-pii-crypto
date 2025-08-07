@@ -50,6 +50,7 @@ def decrypt_csv_file(
         for row in reader:
             for field in fieldnames:
                 if field == "row_iv" or not row[field] or ":" not in row[field]:
+                    logger.info(f"Skipping field: {field} in row {row}")
                     continue
                 field_alias = (
                     find_best_match(field, aliases_file) if aliases_file else field
@@ -65,6 +66,7 @@ def decrypt_csv_file(
                             keys[field_alias], encrypted_data, nonce=row["row_iv"]
                         )
                         decrypted_fields.add(field)
+                        logger.info(f"Decrypted field: {field_alias} in row {row}")
                     except Exception as e:
                         logger.error(f"Error decrypting field '{field}': {e}")
                         row[field] = f"{row[field]} Decryption Error"

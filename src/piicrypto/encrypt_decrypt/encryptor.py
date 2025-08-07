@@ -34,6 +34,7 @@ def encrypt_csv_file(
     key_provider_config: str,
     aliases_file: str = None,
     create_metadata: bool = False,
+    skip_fields: str = None,
 ):
     """
     Encrypt specified fields in a CSV file using AES encryption.
@@ -44,6 +45,7 @@ def encrypt_csv_file(
     logger.info(
         f"Loaded keys for mode: {mode}, for version: {version} from {key_provider_config}"
     )
+    fields_to_skip = skip_fields.split(",") if skip_fields else []
     with open(input_file, "r") as infile, open(output_file, "w") as outfile:
         reader = csv.DictReader(infile)
         fieldnames = reader.fieldnames + ["row_iv"]
@@ -54,15 +56,20 @@ def encrypt_csv_file(
             nonce = generate_nonce()
             for field in reader.fieldnames:
                 if not row[field] or skip_id_column(row_num, row[field], field):
+                    logger.info(f"Skipping field: {field} in row {row_num}")
                     continue
                 field_alias = (
                     find_best_match(field, aliases_file) if aliases_file else field
                 )
+                if field_alias in fields_to_skip:
+                    logger.info(f"Skipping field: {field_alias} in row {row_num}")
+                    continue
                 if field_alias in keys:
                     row[field] = f"{version}:" + encrypt_data(
                         keys[field_alias], row[field], nonce
                     )
                     encrypted_fields.add(field)
+                    logger.info(f"Encrypted field: {field_alias} in row {row_num}")
             row["row_iv"] = base64.b64encode(nonce).decode()
             writer.writerow(row)
     if create_metadata:

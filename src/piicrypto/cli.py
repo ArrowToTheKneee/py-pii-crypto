@@ -92,13 +92,22 @@ def encrypt_csv_command(
     create_metadata: bool = typer.Option(
         False, help="Generate metadata for the keys and output file."
     ),
+    skip_fields: str = typer.Option(
+        None, help="Comma-separated list of fields to skip during encryption."
+    ),
 ):
     """
     Encrypt specified fields in a CSV file using AES encryption.
     """
 
     encrypt_csv_file(
-        input_file, output_file, mode, config_file, aliases_file, create_metadata
+        input_file,
+        output_file,
+        mode,
+        config_file,
+        aliases_file,
+        create_metadata,
+        skip_fields,
     )
 
 
