@@ -1,4 +1,3 @@
-import json
 from collections import defaultdict
 
 from piicrypto.helpers.logger_helper import setup_logger
