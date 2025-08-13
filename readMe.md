@@ -1,94 +1,177 @@
+# py-pii-crypto
 
-# 📦 PII Crypto
-
-**PII Crypto** is a Python module and CLI tool designed to securely encrypt and decrypt Personally Identifiable Information (PII) in CSV files or string inputs using AES-GCM encryption. It supports configurable key management and provides a flexible framework for protecting sensitive data in transit and storage.
-
----
-
-## 🔧 Features
-
-- AES-GCM encryption and decryption
-- Field-level encryption for CSV files
-- Flexible key management using provider configs
-- CLI support via `typer` for easy usage
-- Logging support for auditability
-- Alias-based field mapping
-- Metadata storage for auditability 
+**py-pii-crypto** is a Python package for encrypting and decrypting Personally Identifiable Information (PII) using AES-GCM.
+It supports multiple key providers (local and vault), metadata generation, and a CLI for CSV and single-value workflows.
 
 ---
 
-## 🗂️ Project Structure
+## ✨ Features
+- AES-GCM encryption with per-row nonces for CSVs (column `row_iv` is added).
+- Key management via a provider **factory** (`local`, `vault`).
+- Versioned keys (e.g., `v1`, `v2` …) with **per-field** mapping and optional **pinning** to a specific version.
+- CLI subcommands for keys and CSV/data encryption/decryption.
+- Rotating log files written under `logs/`.
 
+---
+
+## 📦 Project Structure
 ```
-src/piicrypto/
-│
-├── cli.py                  # CLI entry point
-├── encrypt_decrypt/        # Encryption and decryption logic
-├── helpers/                # Utility and logging functions
-├── key_provider/           # Key management interface and implementation
-└── __init__.py             # Module init
-examples/                   # Example inputs, outputs, and key configs
+py-pii-crypto/
+├── src/piicrypto/
+│   ├── encrypt_decrypt/          # Encryption & decryption logic
+│   ├── helpers/                  # Logging, utils, config parser
+│   └── key_provider/             # Key provider interface + implementations
+├── examples/                     # Sample CSVs, keys, and provider config
+├── learnings/                    # Design notes
+├── pyproject.toml
+└── README.md
 ```
 
 ---
 
 ## 🚀 Installation
-
 ```bash
-git clone https://github.com/ArrowToTheKneee/py-pii-crypto
-cd py-pii-crypto
-pip install -e .
+pip install .
+# or
+pipx install .
 ```
 
 ---
 
-## 📌 Usage
+## 🔑 CLI Usage
 
-### CLI Commands
-
-**Generate Keys**
+### CSV
+Encrypt:
 ```bash
-pii-crypto --log-dir logs keys generate --config-file examples/local_provider.json --mode local
+piicrypto csv encrypt   --input examples/input_test.csv   --output examples/enc.csv   --config-file examples/unified_local_provider.json   --mode local   --create-metadata
 ```
 
-**Encrypt CSV(with create metadata)**
+Decrypt:
 ```bash
-pii-crypto --log-dir logs csv encrypt --input-file examples/input_test.csv --output-file examples/enc.csv --config-file examples/local_provider.json --mode local --create-metadata
+piicrypto csv decrypt   --input examples/enc.csv   --output examples/dec.csv   --config-file examples/unified_local_provider.json   --mode local   --create-metadata
 ```
 
-**Decrypt CSV(with create metadata)**
+### Single values
 ```bash
-pii-crypto --log-dir logs csv decrypt --input-file examples/enc.csv --output-file examples/dec.csv --config-file examples/local_provider.json --mode local --create-metadata
+# These commands expect a base64 key and nonce (see Key Management).
+piicrypto data encrypt --key <b64-key> --data "Sensitive" --nonce <b64-12-byte-nonce>
+piicrypto data decrypt --key <b64-key> --data "<cipher_b64>" --nonce <b64-12-byte-nonce>
 ```
 
 ---
 
-## 📁 Example Files
+## 📝 Logging & Metadata
 
-- `examples/input_test.csv`: Sample input file
-- `examples/enc.csv`: Encrypted CSV output
-- `examples/dec.csv`: Decrypted CSV output
-- `examples/local_provider.json`: Sample key provider config
-- `examples/aliases.json`: Optional field aliasing config
-- `examples/dec.csv.metadata.json`: Metadata file created
+### Logging
+- Configured in `src/piicrypto/helpers/logger_helper.py`.
+- Logs go to **rotating files** under `logs/` with filenames like `piicrypto_YYYY-MM-DD.log`.
+- Default format includes timestamp, level, logger name, and message.
 
----
-
-## ✅ Requirements
-
-- Python 3.8+
-- `pycryptodome`
-- `typer`
-- `pydantic`
-
-Dependencies are listed in `pyproject.toml`.
+### Metadata
+- If `--create-metadata` is passed, a file named `<output>.metadata.json` is created.
+- Created by `helpers/utils.py::generate_metadata` and contains:
+  - `key_provider_mode`, `operation` (`encrypt`/`decrypt`), `operation_fields`, `output_file`,
+    `created_at`, and package version.
+- For CSV encryption, a per-row Base64 IV is written to the `row_iv` column.
 
 ---
 
-## 🔒 Security Note
+## 🔐 Key Management (Generation, Rotation, Selection)
 
-- AES-GCM is used with unique nonces for every encryption to ensure confidentiality and integrity.
-- The system supports pluggable key providers. You can extend `BaseKeyProvider` to implement secure remote key stores.
+The project uses a **versioned key store** (e.g., `examples/keys.json`) and a **provider config** (e.g., `examples/unified_local_provider.json`).
+
+### 1) Provider Config (`unified_local_provider.json`)
+- Defines **which fields are encrypted**, optional **aliases**, and (optionally) a **pinned key version**.
+- Also points to the key source (`key_source`) or a vault URL.
+Example:
+```json
+{
+  "fields": {
+    "ssn":    { "alias": ["social_security_number", "ssn"], "encrypt": true,  "key_id": "v1" },
+    "dob":    { "alias": ["date_of_birth", "dob"],          "encrypt": false              },
+    "name":   { "alias": ["full_name", "name"],             "encrypt": true,  "key_id": "v1" },
+    "address":{ "alias": ["home_address", "address"],       "encrypt": true               }
+  },
+  "key_source": "examples/keys.json"
+}
+```
+
+**Notes**
+- `encrypt: true` marks a field for encryption.
+- `key_id` (optional) **pins** that field to a specific key **version** (e.g., always use `v1` for `ssn`). If omitted, the **latest version** is used.
+- Ensure `key_source` points to a valid path on your machine.
+
+### 2) Keys File (`keys.json`)
+- A top-level mapping from **version** ➜ **field** ➜ **Base64 key**.
+- Example (abbreviated from `examples/keys.json`):
+```json
+{
+  "v1": {
+    "ssn": "f2IfwQDGku5UAoO0GrpHA6QZ/Z22R+s7mQeeYvJh230=",
+    "dob": "rjuaBUJWSQrlpDobQCNKgWBiNCVoLCIANj1hq63b8ZA=",
+    "name": "xTnsJPzpRBaY2A1D1jWUZBl/Ub2lPAZBXHZWQjo9aeA=",
+    "address": "9RsRJtaowblmjm24m+LX1k39o36+oGs6ZRAJruDGVQE="
+  },
+  "v2": { "... per-field Base64 keys ..." },
+  "v3": { "... per-field Base64 keys ..." }
+}
+```
+- Keys are **Base64-encoded 256-bit (32-byte) AES keys**.
+
+### 3) Generation & Rotation via CLI
+Implemented in `src/piicrypto/cli.py` and routed through `KeyManager` ➜ the selected provider (`local` or `vault`).
+
+**Generate (create initial version if needed):**
+```bash
+piicrypto keys generate   --config-file examples/unified_local_provider.json   --mode local
+```
+- Creates a new version (e.g., `v1`) in `keys.json` with keys for fields defined in the provider config.
+
+**Rotate (add a new version for future encryptions):**
+```bash
+piicrypto keys rotate   --config-file examples/unified_local_provider.json   --mode local
+```
+- Adds a new version (e.g., `v3` ➜ `v4`) with **fresh random keys for every encryptable field**.
+- Existing data remains decryptable because ciphertext is associated with the version used at the time of encryption.
+
+### 4) Selection Logic at Encryption Time
+- `LocalKeyProvider.load_keys()` returns a mapping: **field ➜ (version, key)**.
+  - If the field has a `key_id` in the provider config, that version is used.
+  - Otherwise, the **highest version** present in `keys.json` is used.
+- This enables gradual migrations: pin critical fields to an older version until their data is re-encrypted.
+
+### 5) Python API
+```python
+from piicrypto.key_provider.key_manager import KeyManager
+
+km = KeyManager(provider_type="local", config_file="examples/unified_local_provider.json")
+
+# Create initial keys (v1) if missing
+km.generate_keys()
+
+# Rotate to a new key version (e.g., v2 -> v3)
+km.rotate_keys()
+
+# Load the mapping used for encryption: {"ssn": ("v3", "<b64key>"), ...}
+field_to_version_key = km.load_keys()
+
+# Access a specific historical version
+v1_keys = km.get_keys_by_version("v1")  # -> {"ssn": "<b64>", "name": "<b64>", ...}
+```
+
+---
+
+## ⚙️ Configuration Tips
+- Update the `key_source` path in your provider config to a valid, writable file.
+- For Vault, provide `vault_url` in the config and implement the read/write in `VaultKeyProvider` (placeholders exist).
+
+---
+
+## 🛡️ Security Best Practices
+- Use **256-bit** keys (already the default in `helpers/utils.generate_aes_key()`).
+- Rotate keys on a schedule; pin fields to old versions until re-encryption is completed.
+- Protect `keys.json` with strict filesystem permissions or switch to a KMS/Vault.
+- Never commit real keys to source control.
 
 ---
 
@@ -96,7 +179,7 @@ Dependencies are listed in `pyproject.toml`.
 
 | Enhancement | Description | Status |
 |-------------|-------------|--------|
-| ✅ Field-level policy control | Allow users to specify which fields to encrypt or skip via config |
+| ✅ Field-level policy control | Allow users to specify which fields to encrypt or skip via config | Done. Can be specified via unified config json
 | ✅ Schema validation | Add input CSV schema validation using Pydantic or similar |
 | ✅ Multiple encryption algorithms | Support RSA or other ciphers optionally |
 | ✅ UI layer | A web UI to upload CSV, select fields, and download encrypted results |
