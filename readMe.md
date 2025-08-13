@@ -6,11 +6,20 @@ It supports multiple key providers (local and vault), metadata generation, and a
 ---
 
 ## ✨ Features
-- AES-GCM encryption with per-row nonces for CSVs (column `row_iv` is added).
-- Key management via a provider **factory** (`local`, `vault`).
-- Versioned keys (e.g., `v1`, `v2` …) with **per-field** mapping and optional **pinning** to a specific version.
-- CLI subcommands for keys and CSV/data encryption/decryption.
-- Rotating log files written under `logs/`.
+- AES-GCM encryption/decryption for CSV fields and single values.
+- Per-row 12-byte nonce stored as `row_iv` in encrypted CSVs.
+- Fuzzy header–to–field alias matching with a similarity threshold.
+- Alias system for fields defined in the provider config.
+- Field-level selection (encrypt true/false) and optional key version pinning via `key_id`.
+- Versioned, per-field Base64 keys in `keys.json` (e.g., `v1`, `v2`, …).
+- Key lifecycle: generate initial keys and rotate to new versions via CLI/KeyManager.
+- Pluggable key providers via factory (`local` implemented; `vault` scaffolded).
+- Optional structured metadata output (`<output>.metadata.json`) with operation context.
+- Robust CSV handling: skip typical ID columns and annotate per-cell decrypt errors.
+- Typer-based CLI with `csv`, `data`, and `keys` subcommands.
+- Rotating file logging under `logs/` with timestamped entries.
+- Ready-to-use examples and configs (`unified_local_provider.json`, `keys.json`, `input_test.csv`, `enc.csv`, `dec.csv`).
+- Python API for programmatic encryption/decryption and key management.
 
 ---
 
