@@ -32,7 +32,6 @@ def decrypt_csv_file(
     output_file: str,
     mode: str,
     key_provider_config: str,
-    aliases_file: str = None,
     create_metadata: bool = False,
 ):
     """
@@ -40,7 +39,7 @@ def decrypt_csv_file(
     """
     logger.info(f"Starting decryption process for {input_file} to {output_file}")
     key_manager = KeyManager(mode, key_provider_config)
-    logger.info(f"Loading keys for mode: {mode} from {key_provider_config}")
+    fields_to_alias = key_manager.field_to_alias
     with open(input_file, "r") as infile, open(output_file, "w") as outfile:
         reader = csv.DictReader(infile)
         fieldnames = reader.fieldnames
@@ -53,7 +52,9 @@ def decrypt_csv_file(
                     logger.info(f"Skipping field: {field} in row {row}")
                     continue
                 field_alias = (
-                    find_best_match(field, aliases_file) if aliases_file else field
+                    find_best_match(field, fields_to_alias)
+                    if fields_to_alias
+                    else field
                 )
                 version, encrypted_data = row[field].split(":")
                 keys = key_manager.get_keys_by_version(version)
@@ -73,7 +74,6 @@ def decrypt_csv_file(
             writer.writerow(row)
     if create_metadata:
         metadata = generate_metadata(
-            keys_version=version,
             out_file=output_file,
             mode=mode,
             operation="decrypt",

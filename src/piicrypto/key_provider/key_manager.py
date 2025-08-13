@@ -16,6 +16,8 @@ class KeyManager:
         self.provider: BaseKeyProvider = KeyProviderFactory.create_key_provider(
             provider_type, config_file
         )
+        self.fields_to_encrypt = self.provider.fields_to_encrypt
+        self.field_to_alias = self.provider.field_to_alias
 
     def generate_keys(self):
         """
@@ -29,12 +31,12 @@ class KeyManager:
         """
         self.provider.rotate_keys()
 
-    def load_latest_keys(self):
+    def load_keys(self):
         """
-        Load the latest version of keys from the provider.
-        :return: (version_str, keys_dict)
+        Load the version of keys from the provider.
+        :return: keys dict
         """
-        return self.provider.load_latest_keys()
+        return self.provider.load_keys()
 
     def get_keys_by_version(self, version: str):
         """

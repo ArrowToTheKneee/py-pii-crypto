@@ -24,13 +24,11 @@ def generate_nonce() -> bytes:
     return get_random_bytes(12)
 
 
-def find_best_match(query: str, aliases_file: str) -> str:
+def find_best_match(query: str, field_to_alias: dict) -> str:
     """
-    Find the best match for a query string in an aliases file using fuzzy matching.
+    Find the best match for a query string in a field to alias dict using fuzzy matching.
     """
-    with open(aliases_file, "r") as f:
-        aliases = json.load(f)
-    reverse_lookup = {v: k for k, vs in aliases.items() for v in vs}
+    reverse_lookup = {v: k for k, vs in field_to_alias.items() for v in vs}
     match, similarity, _ = extractOne(
         query,
         list(reverse_lookup.keys()),
@@ -55,13 +53,12 @@ def skip_id_column(row_number: int, value: dict, field_name: str) -> bool:
 
 
 def generate_metadata(
-    keys_version: str, out_file: str, mode: str, operation: str, operation_fields: set
+    out_file: str, mode: str, operation: str, operation_fields: set
 ) -> dict:
     """
     Generate metadata for the keys.
     """
     metadata = {
-        "keys_version": keys_version,
         "key_provider_mode": mode,
         "operation": operation,
         "operation_fields": list(operation_fields),

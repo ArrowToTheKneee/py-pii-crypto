@@ -32,20 +32,17 @@ def encrypt_csv_file(
     output_file: str,
     mode: str,
     key_provider_config: str,
-    aliases_file: str = None,
     create_metadata: bool = False,
-    skip_fields: str = None,
 ):
     """
     Encrypt specified fields in a CSV file using AES encryption.
     """
     logger.info(f"Starting Encryption process for {input_file} to {output_file}")
     key_manager = KeyManager(mode, key_provider_config)
-    version, keys = key_manager.load_latest_keys()
-    logger.info(
-        f"Loaded keys for mode: {mode}, for version: {version} from {key_provider_config}"
-    )
-    fields_to_skip = skip_fields.split(",") if skip_fields else []
+    keys = key_manager.load_keys()
+    logger.info(f"Loaded keys for mode: {mode}, from {key_provider_config}")
+    fields_to_encrypt = key_manager.fields_to_encrypt
+    fields_to_alias = key_manager.field_to_alias
     with open(input_file, "r") as infile, open(output_file, "w") as outfile:
         reader = csv.DictReader(infile)
         fieldnames = reader.fieldnames + ["row_iv"]
@@ -59,14 +56,17 @@ def encrypt_csv_file(
                     logger.info(f"Skipping field: {field} in row {row_num}")
                     continue
                 field_alias = (
-                    find_best_match(field, aliases_file) if aliases_file else field
+                    find_best_match(field, fields_to_alias)
+                    if fields_to_alias
+                    else field
                 )
-                if field_alias in fields_to_skip:
+                if field_alias not in fields_to_encrypt:
                     logger.info(f"Skipping field: {field_alias} in row {row_num}")
                     continue
                 if field_alias in keys:
+                    version, key_material = keys[field_alias]
                     row[field] = f"{version}:" + encrypt_data(
-                        keys[field_alias], row[field], nonce
+                        key_material, row[field], nonce
                     )
                     encrypted_fields.add(field)
                     logger.info(f"Encrypted field: {field_alias} in row {row_num}")
@@ -74,7 +74,6 @@ def encrypt_csv_file(
             writer.writerow(row)
     if create_metadata:
         metadata = generate_metadata(
-            keys_version=version,
             out_file=output_file,
             mode=mode,
             operation="encrypt",

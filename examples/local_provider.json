@@ -1,4 +1,0 @@
-{
-  "fields": "ssn,dob,name,address",
-  "json_file": "/home/apawar/py-pii-crypto/examples/keys.json"
-}

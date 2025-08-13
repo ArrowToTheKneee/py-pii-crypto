@@ -86,14 +86,8 @@ def encrypt_csv_command(
     output_file: str = typer.Option(..., help="Path to the output CSV file."),
     config_file: str = typer.Option(..., help="Path to key provider config JSON file."),
     mode: str = typer.Option(..., help="Key provider mode: 'local', 'vault', etc"),
-    aliases_file: str = typer.Option(
-        None, help="Path to the JSON file containing field aliases."
-    ),
     create_metadata: bool = typer.Option(
         False, help="Generate metadata for the keys and output file."
-    ),
-    skip_fields: str = typer.Option(
-        None, help="Comma-separated list of fields to skip during encryption."
     ),
 ):
     """
@@ -105,9 +99,7 @@ def encrypt_csv_command(
         output_file,
         mode,
         config_file,
-        aliases_file,
         create_metadata,
-        skip_fields,
     )
 
 
@@ -117,9 +109,6 @@ def decrypt_csv_command(
     output_file: str = typer.Option(..., help="Path to the output CSV file."),
     config_file: str = typer.Option(..., help="Path to key provider config JSON file."),
     mode: str = typer.Option(..., help="Key provider mode: 'local', 'vault', etc"),
-    aliases_file: str = typer.Option(
-        None, help="Path to the JSON file containing field aliases."
-    ),
     create_metadata: bool = typer.Option(
         False, help="Generate metadata for the keys and output file."
     ),
@@ -128,9 +117,7 @@ def decrypt_csv_command(
     Decrypt specified fields in a CSV file using AES decryption.
     """
 
-    decrypt_csv_file(
-        input_file, output_file, mode, config_file, aliases_file, create_metadata
-    )
+    decrypt_csv_file(input_file, output_file, mode, config_file, create_metadata)
 
 
 if __name__ == "__main__":

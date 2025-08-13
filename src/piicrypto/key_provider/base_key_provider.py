@@ -1,11 +1,18 @@
 from abc import ABC, abstractmethod
 
+from piicrypto.helpers.provider_config_parser import ProviderConfigParser
+
 
 class BaseKeyProvider(ABC):
     """
     Abstract base class for key providers.
     All key providers should inherit from this class and implement the required methods.
     """
+
+    def __init__(self, config_file: str):
+        provider_config = ProviderConfigParser(config_file)
+        self.fields_to_encrypt = provider_config.get_fields_to_encrypt()
+        self.field_to_alias = provider_config.get_field_to_alias()
 
     @abstractmethod
     def generate_keys(self):
@@ -22,9 +29,9 @@ class BaseKeyProvider(ABC):
         pass
 
     @abstractmethod
-    def load_latest_keys(self):
+    def load_keys(self):
         """
-        Load latest AES keys from a JSON file.
+        Load AES keys from a JSON file.
         """
         pass
 

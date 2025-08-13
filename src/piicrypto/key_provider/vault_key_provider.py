@@ -2,6 +2,7 @@ import json
 from collections import defaultdict
 
 from piicrypto.helpers.logger_helper import setup_logger
+from piicrypto.helpers.provider_config_parser import ProviderConfigParser
 from piicrypto.helpers.utils import generate_aes_key
 from piicrypto.key_provider.base_key_provider import BaseKeyProvider
 
@@ -18,27 +19,22 @@ class VaultKeyProvider(BaseKeyProvider):
         """
         Initialize the LocalKeyProvider from a config file.
 
-        :param config_file: Path to a JSON config file with keys like:
-            {
-                "fields": "name,email,ssn",
-                "vault_url": "https://dev-vault.example.com"
-            }
+        :param config_file: Path to a JSON config file with keys
         """
-        with open(config_file, "r") as f:
-            config = json.load(f)
+        provider_config = ProviderConfigParser(config_file)
 
-        self.fields = config.get("fields", "")
-        self.vault_url = config.get("vault_url", "https://dev-vault.example.com")
+        self.fields = list(provider_config.fields.keys())
+        self.field_to_alias = provider_config.get_field_to_alias()
+        self.vault_url = provider_config.vault_url
         self.generate_keys()
 
     def generate_keys(self):
         """
         Generate AES keys for the specified fields and save them to Vault.
         """
-        fields_list = self.fields.split(",")
         keys = defaultdict(dict)
-        print(f"Generating keys for fields: {fields_list}")
-        for field in fields_list:
+        logger.info(f"Generating keys for fields: {self.fields}")
+        for field in self.fields:
             keys["v1"][field] = generate_aes_key()
         # Implement the logic to save `keys` to Vault
         # For example, using a Vault client library to write the keys
@@ -52,12 +48,12 @@ class VaultKeyProvider(BaseKeyProvider):
         # generate new keys, and write them back to Vault.
         logger.info(f"Rotating keys in Vault at {self.vault_url}")
 
-    def load_latest_keys(self):
+    def load_keys(self):
         """
-        Load latest AES keys from Vault.
+        Load AES keys from Vault.
         """
-        # Implement the logic to read the latest keys from Vault.
-        logger.info(f"Loading latest keys from Vault at {self.vault_url}")
+        # Implement the logic to read the keys from Vault.
+        logger.info(f"Loading keys from Vault at {self.vault_url}")
 
     def get_keys_by_version(self, version: str):
         """

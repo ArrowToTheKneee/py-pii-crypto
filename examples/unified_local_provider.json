@@ -1,0 +1,23 @@
+{
+  "fields": {
+    "ssn": {
+      "alias": ["social_security_number", "ssn"],
+      "encrypt": true,
+      "key_id": "v1"
+    },
+    "dob": {
+      "alias": ["date_of_birth", "dob"],
+      "encrypt": false
+    },
+    "name": {
+      "alias": ["full_name", "name"],
+      "encrypt": true,
+      "key_id": "v1"
+    },
+    "address": {
+      "alias": ["home_address", "address", "full_address"],
+      "encrypt": true
+    }
+  },
+  "key_source": "/home/apawar/py-pii-crypto/examples/keys.json"
+}

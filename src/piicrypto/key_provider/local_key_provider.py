@@ -3,6 +3,7 @@ import os
 from collections import defaultdict
 
 from piicrypto.helpers.logger_helper import setup_logger
+from piicrypto.helpers.provider_config_parser import ProviderConfigParser
 from piicrypto.helpers.utils import generate_aes_key
 from piicrypto.key_provider.base_key_provider import BaseKeyProvider
 
@@ -19,17 +20,15 @@ class LocalKeyProvider(BaseKeyProvider):
         """
         Initialize the LocalKeyProvider from a config file.
 
-        :param config_file: Path to a JSON config file with keys like:
-            {
-                "fields": "name,email,ssn",
-                "json_file": "keys.json"
-            }
+        :param config_file: Path to a JSON provider config file
         """
-        with open(config_file, "r") as f:
-            config = json.load(f)
+        provider_config = ProviderConfigParser(config_file)
 
-        self.fields = config.get("fields", "")
-        self.json_file = config.get("json_file", "keys.json")
+        self.fields = list(provider_config.fields.keys())
+        self.json_file = provider_config.key_source
+        self.fields_to_encrypt = provider_config.get_fields_to_encrypt()
+        self.field_to_alias = provider_config.get_field_to_alias()
+        self.field_to_key_ids = provider_config.get_fields_to_key_ids()
         if not os.path.exists(self.json_file):
             logger.info(
                 f"[LocalKeyProvider] Key file '{self.json_file}' does not exist. Generating keys."
@@ -55,10 +54,9 @@ class LocalKeyProvider(BaseKeyProvider):
         """
         Generate AES keys for the specified fields and save them to a JSON file.
         """
-        fields_list = self.fields.split(",")
         keys = defaultdict(dict)
-        logger.info(f"Generating keys for fields: {fields_list}")
-        for field in fields_list:
+        logger.info(f"Generating keys for fields: {self.fields}")
+        for field in self.fields:
             keys["v1"][field] = generate_aes_key()
         with open(self.json_file, "w") as f:
             json.dump(keys, f, indent=4)
@@ -78,13 +76,17 @@ class LocalKeyProvider(BaseKeyProvider):
             json.dump(keys, f, indent=4)
         logger.info(f"Rotated keys to version {new_version}")
 
-    def load_latest_keys(self):
+    def load_keys(self):
         """
-        Load the latest version of keys from the JSON file.
+        Load the keys from the JSON file.
         """
+        keys_to_use = {}
         keys = self._load_keys_file()
         max_version = max(int(k[1:]) for k in keys)
-        return f"v{max_version}", keys[f"v{max_version}"]
+        for field in self.fields:
+            version = self.field_to_key_ids.get(field, f"v{max_version}")
+            keys_to_use[field] = (version, keys[version][field])
+        return keys_to_use
 
     def get_keys_by_version(self, version: str):
         """
