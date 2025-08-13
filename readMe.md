@@ -43,19 +43,19 @@ pipx install .
 ### CSV
 Encrypt:
 ```bash
-piicrypto csv encrypt   --input examples/input_test.csv   --output examples/enc.csv   --config-file examples/unified_local_provider.json   --mode local   --create-metadata
+pii-crypto csv encrypt   --input examples/input_test.csv   --output examples/enc.csv   --config-file examples/unified_local_provider.json   --mode local   --create-metadata
 ```
 
 Decrypt:
 ```bash
-piicrypto csv decrypt   --input examples/enc.csv   --output examples/dec.csv   --config-file examples/unified_local_provider.json   --mode local   --create-metadata
+pii-crypto csv decrypt   --input examples/enc.csv   --output examples/dec.csv   --config-file examples/unified_local_provider.json   --mode local   --create-metadata
 ```
 
 ### Single values
 ```bash
 # These commands expect a base64 key and nonce (see Key Management).
-piicrypto data encrypt --key <b64-key> --data "Sensitive" --nonce <b64-12-byte-nonce>
-piicrypto data decrypt --key <b64-key> --data "<cipher_b64>" --nonce <b64-12-byte-nonce>
+pii-crypto data encrypt --key <b64-key> --data "Sensitive" --nonce <b64-12-byte-nonce>
+pii-crypto data decrypt --key <b64-key> --data "<cipher_b64>" --nonce <b64-12-byte-nonce>
 ```
 
 ---
@@ -123,13 +123,13 @@ Implemented in `src/piicrypto/cli.py` and routed through `KeyManager` ➜ the se
 
 **Generate (create initial version if needed):**
 ```bash
-piicrypto keys generate   --config-file examples/unified_local_provider.json   --mode local
+pii-crypto keys generate   --config-file examples/unified_local_provider.json   --mode local
 ```
 - Creates a new version (e.g., `v1`) in `keys.json` with keys for fields defined in the provider config.
 
 **Rotate (add a new version for future encryptions):**
 ```bash
-piicrypto keys rotate   --config-file examples/unified_local_provider.json   --mode local
+pii-crypto keys rotate   --config-file examples/unified_local_provider.json   --mode local
 ```
 - Adds a new version (e.g., `v3` ➜ `v4`) with **fresh random keys for every encryptable field**.
 - Existing data remains decryptable because ciphertext is associated with the version used at the time of encryption.
