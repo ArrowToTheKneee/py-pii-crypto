@@ -87,7 +87,7 @@ Pydantic models are regular Python classes with **built-in type checking and val
 | **Required field** | `Annotated[type, Field(...)]` | `from typing import Annotated; from pydantic import BaseModel, Field; class User(BaseModel): name: Annotated[str, Field(min_length=1)]` | Must be provided and meet validation rules. |
 | **Optional field (no validation)** | `Optional[type] = None` | `from typing import Optional; from pydantic import BaseModel; class User(BaseModel): nickname: Optional[str] = None` | Can be omitted or None; no extra validation. |
 | **Optional field (with validation)** | `Annotated[Optional[type], Field(...)] = None` | `from typing import Optional, Annotated; from pydantic import BaseModel, Field; class User(BaseModel): age: Annotated[Optional[int], Field(gt=0)] = None` | Can be omitted or None; if provided, must meet validation rules. |
-| **Python 3.10+ Optional shorthand** | `Annotated[type | None, Field(...)] = None` | `from typing import Annotated; from pydantic import BaseModel, Field; class User(BaseModel): age: Annotated[int | None, Field(gt=0)] = None` | Same as above, using union (`|`) syntax. |
+| **Python 3.10+ Optional shorthand** | `Annotated[type \| None, Field(...)] = None` | `from typing import Annotated; from pydantic import BaseModel, Field; class User(BaseModel): age: Annotated[int \| None, Field(gt=0)] = None` | Same as above, using union (`\|`) syntax. |
 
 
 ---
