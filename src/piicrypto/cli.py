@@ -89,6 +89,9 @@ def encrypt_csv_command(
     create_metadata: bool = typer.Option(
         False, help="Generate metadata for the keys and output file."
     ),
+    validate_json: str = typer.Option(
+        None, help="Generate metadata for the keys and output file."
+    ),
 ):
     """
     Encrypt specified fields in a CSV file using AES encryption.
@@ -100,6 +103,7 @@ def encrypt_csv_command(
         mode,
         config_file,
         create_metadata,
+        validate_json=validate_json,
     )
 
 

@@ -1,12 +1,8 @@
 {
     "key_provider_mode": "local",
     "operation": "encrypt",
-    "operation_fields": [
-        "name",
-        "address",
-        "Social Security Number"
-    ],
+    "operation_fields": [],
     "output_file": "/home/apawar/py-pii-crypto/examples/enc.csv",
-    "created_at": "2025-08-12 19:35:38",
+    "created_at": "2025-08-14 22:13:21",
     "package_version": "0.1.0"
 }

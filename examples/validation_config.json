@@ -1,0 +1,7 @@
+{
+    "id": { "type": "int", "gt": 0, "required": true},
+    "name": { "type": "str", "min_length": 1, "max_length": 50 , "required": false},
+    "Social Security Number": { "type": "str", "regex": "^[0-9]{3}-[0-9]{2}-[0-9]{4}$", "required": true},
+    "address": { "type": "str", "min_length": 5, "max_length": 100, "required": false},
+    "Date of Birth": { "type": "date", "format": "%Y-%m-%d", "required": false}
+}

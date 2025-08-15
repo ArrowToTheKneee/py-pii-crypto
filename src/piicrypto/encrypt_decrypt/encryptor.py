@@ -4,12 +4,14 @@ import json
 
 from Crypto.Cipher import AES
 
+from piicrypto.helpers.create_dynamic_model import create_dynamic_model
 from piicrypto.helpers.logger_helper import setup_logger
 from piicrypto.helpers.utils import (
     find_best_match,
     generate_metadata,
     generate_nonce,
     skip_id_column,
+    validate_row,
 )
 from piicrypto.key_provider.key_manager import KeyManager
 
@@ -33,6 +35,7 @@ def encrypt_csv_file(
     mode: str,
     key_provider_config: str,
     create_metadata: bool = False,
+    validate_json: str = None,
 ):
     """
     Encrypt specified fields in a CSV file using AES encryption.
@@ -43,6 +46,10 @@ def encrypt_csv_file(
     logger.info(f"Loaded keys for mode: {mode}, from {key_provider_config}")
     fields_to_encrypt = key_manager.fields_to_encrypt
     fields_to_alias = key_manager.field_to_alias
+    validation_model = None
+    if validate_json:
+        validation_model = create_dynamic_model(validate_json)
+        logger.info(f"Validation model created from {validate_json}")
     with open(input_file, "r") as infile, open(output_file, "w") as outfile:
         reader = csv.DictReader(infile)
         fieldnames = reader.fieldnames + ["row_iv"]
@@ -50,6 +57,9 @@ def encrypt_csv_file(
         writer.writeheader()
         encrypted_fields = set()
         for row_num, row in enumerate(reader):
+            if validation_model and not validate_row(row, validation_model):
+                logger.warning(f"Skipping row {row_num} due to validation errors")
+                continue
             nonce = generate_nonce()
             for field in reader.fieldnames:
                 if not row[field] or skip_id_column(row_num, row[field], field):
