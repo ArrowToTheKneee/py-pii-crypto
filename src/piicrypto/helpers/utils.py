@@ -80,7 +80,6 @@ def validate_row(row: dict, model: BaseModel) -> bool:
     except ValidationError as e:
         error = e.errors()
         print(f"Validation error for row {row}: {error}")
-        logger.error(f"Validation error for row {row}: {error}")
         if error:
             for err in error:
                 logger.error(
