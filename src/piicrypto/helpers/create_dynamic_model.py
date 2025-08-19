@@ -1,8 +1,8 @@
 import json
-import re
 from datetime import datetime
+from typing import Optional
 
-from pydantic import AfterValidator, BeforeValidator, Field, create_model
+from pydantic import Field, create_model, field_validator
 
 
 def create_dynamic_model(config_json: str) -> type:
@@ -43,7 +43,12 @@ def create_dynamic_model(config_json: str) -> type:
             raise ValueError(
                 f"Unsupported type: {field_config['type']} for field: {field_name}"
             )
-        default = ... if field_config.get("required", True) else None
+        if field_config.get("required", True):
+            default = ...
+            annotated_type = field_type
+        else:
+            default = None
+            annotated_type = Optional[field_type]
         if "gt" in field_config:
             validation_rules["gt"] = field_config["gt"]
         if "min_length" in field_config:
@@ -53,16 +58,17 @@ def create_dynamic_model(config_json: str) -> type:
         if "regex" in field_config:
             validation_rules["pattern"] = field_config["regex"]
 
-        fields[field_name] = (field_type, Field(default, **validation_rules))
-
-        v_list = []
+        fields[field_name] = (annotated_type, Field(default, **validation_rules))
+        print(f"fields: {fields}")
 
         def empty_to_none(v):
             if v == "":
                 return None
             return v
 
-        v_list.append(BeforeValidator(empty_to_none))
+        validators[f"empty_to_none_{field_name}"] = field_validator(
+            field_name, mode="before"
+        )(empty_to_none)
 
         if field_config["type"] == "date":
             fmt = field_config.get("format", "%Y-%m-%d")
@@ -74,7 +80,9 @@ def create_dynamic_model(config_json: str) -> type:
                 except Exception:
                     raise ValueError(f"Expected date format {fmt}")
 
-            v_list.append(AfterValidator(_parse_date))
+            validators[f"parse_date_{field_name}"] = field_validator(
+                field_name, mode="after"
+            )(_parse_date)
 
         if field_config["type"] == "enum":
             allowed = set(field_config.get("values", []))
@@ -84,20 +92,9 @@ def create_dynamic_model(config_json: str) -> type:
                     raise ValueError(f"Value '{v}' not in allowed list: {allowed}")
                 return v
 
-            v_list.append(AfterValidator(_enum_validator))
-
-        if "regex" in field_config:
-            pattern = field_config["regex"]
-
-            def _regex_validator(v, pattern=pattern):
-                if not re.match(pattern, v):
-                    raise ValueError(f"Value '{v}' does not match pattern '{pattern}'")
-                return v
-
-            v_list.append(AfterValidator(_regex_validator))
-
-        if v_list:
-            validators[field_name] = v_list
+            validators[f"_enum_validator_{field_name}"] = field_validator(
+                field_name, mode="after"
+            )(_enum_validator)
 
         # Not using Annotations like, fields[field_name] = Annotated[ field_type, *validators, Field(default, **validation_rules), ] due to error cannot use star expression in index
 
