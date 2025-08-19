@@ -97,5 +97,7 @@ def create_dynamic_model(config_json: str) -> type:
 
         # Not using Annotations like, fields[field_name] = Annotated[ field_type, *validators, Field(default, **validation_rules), ] due to error cannot use star expression in index
 
-    model = create_model("RowValidationModel", **fields, __validators__=validators)
+    model = create_model(
+        "RowValidationModel", **fields, __pydantic_validator__=validators
+    )
     return model

@@ -35,7 +35,6 @@ def find_best_match(query: str, field_to_alias: dict) -> str:
         scorer=fuzz.token_set_ratio,
         processor=utils.default_process,
     )
-    logger.info(f"Best match for '{query}': '{match}' with similarity {similarity}")
     return reverse_lookup[match] if similarity >= 95 else query
 
 

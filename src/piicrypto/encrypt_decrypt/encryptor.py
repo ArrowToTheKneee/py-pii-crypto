@@ -83,7 +83,7 @@ def encrypt_csv_file(
                         key_material, row[field], nonce
                     )
                     encrypted_fields.add(field)
-                    logger.info(f"Encrypted field: {field_alias} in row {row_num}")
+                    logger.info(f"Encrypted field: {field} in row {row_num}")
             row["row_iv"] = base64.b64encode(nonce).decode()
             logger.info(f"Processing completed for row {row_num}, writing to output")
             writer.writerow(row)
