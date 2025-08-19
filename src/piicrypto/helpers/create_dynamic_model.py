@@ -59,7 +59,6 @@ def create_dynamic_model(config_json: str) -> type:
             validation_rules["pattern"] = field_config["regex"]
 
         fields[field_name] = (annotated_type, Field(default, **validation_rules))
-        print(f"fields: {fields}")
 
         def empty_to_none(v):
             if v == "":

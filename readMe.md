@@ -11,6 +11,7 @@ It supports multiple key providers (local and vault), metadata generation, and a
 - Fuzzy header–to–field alias matching with a similarity threshold.
 - Alias system for fields defined in the provider config.
 - Field-level selection (encrypt true/false) and optional key version pinning via `key_id`.
+- Schema and field validation using validation json and Pydantic
 - Versioned, per-field Base64 keys in `keys.json` (e.g., `v1`, `v2`, …).
 - Key lifecycle: generate initial keys and rotate to new versions via CLI/KeyManager.
 - Pluggable key providers via factory (`local` implemented; `vault` scaffolded).
@@ -18,7 +19,7 @@ It supports multiple key providers (local and vault), metadata generation, and a
 - Robust CSV handling: skip typical ID columns and annotate per-cell decrypt errors.
 - Typer-based CLI with `csv`, `data`, and `keys` subcommands.
 - Rotating file logging under `logs/` with timestamped entries.
-- Ready-to-use examples and configs (`unified_local_provider.json`, `keys.json`, `input_test.csv`, `enc.csv`, `dec.csv`).
+- Ready-to-use examples and configs (`unified_local_provider.json`, `validation_config.json`, `keys.json`, `input_test.csv`, `enc.csv`, `dec.csv`).
 - Python API for programmatic encryption/decryption and key management.
 
 ---
@@ -30,7 +31,7 @@ py-pii-crypto/
 │   ├── encrypt_decrypt/          # Encryption & decryption logic
 │   ├── helpers/                  # Logging, utils, config parser
 │   └── key_provider/             # Key provider interface + implementations
-├── examples/                     # Sample CSVs, keys, and provider config
+├── examples/                     # Sample CSVs, keys, and config
 ├── learnings/                    # Design notes
 ├── pyproject.toml
 └── README.md
@@ -52,7 +53,7 @@ pipx install .
 ### CSV
 Encrypt:
 ```bash
-pii-crypto csv encrypt   --input examples/input_test.csv   --output examples/enc.csv   --config-file examples/unified_local_provider.json   --mode local   --create-metadata
+pii-crypto csv encrypt   --input examples/input_test.csv   --output examples/enc.csv   --config-file examples/unified_local_provider.json   --mode local   --create-metadata --validate-json examples/validation_config.json
 ```
 
 Decrypt:
@@ -69,7 +70,7 @@ pii-crypto data decrypt --key <b64-key> --data "<cipher_b64>" --nonce <b64-12-by
 
 ---
 
-## 📝 Logging & Metadata
+## 📝 Logging, Metadata and Validation
 
 ### Logging
 - Configured in `src/piicrypto/helpers/logger_helper.py`.
@@ -82,6 +83,10 @@ pii-crypto data decrypt --key <b64-key> --data "<cipher_b64>" --nonce <b64-12-by
   - `key_provider_mode`, `operation` (`encrypt`/`decrypt`), `operation_fields`, `output_file`,
     `created_at`, and package version.
 - For CSV encryption, a per-row Base64 IV is written to the `row_iv` column.
+
+### Validation
+- If `--validate-json` is passed along with a validation json, like `examples/validation_config.json` the input file fields will be validated against a schema and validation rules
+- If a row fails validation, it is logged, like `Validation error for field 'Social Security Number': String should match pattern '^[0-9]{3}-[0-9]{2}-[0-9]{4}$'` and the row is skipped from being encrypted
 
 ---
 
@@ -189,7 +194,7 @@ v1_keys = km.get_keys_by_version("v1")  # -> {"ssn": "<b64>", "name": "<b64>", .
 | Enhancement | Description | Status |
 |-------------|-------------|--------|
 | ✅ Field-level policy control | Allow users to specify which fields to encrypt or skip via config | Done. Can be specified via unified config json
-| ✅ Schema validation | Add input CSV schema validation using Pydantic or similar |
+| ✅ Schema validation | Add input CSV schema validation using Pydantic or similar | Done. Pydanctic is used for schema validation. A validation json is provided and option specified in cli
 | ✅ Multiple encryption algorithms | Support RSA or other ciphers optionally |
 | ✅ UI layer | A web UI to upload CSV, select fields, and download encrypted results |
 | ✅ Integration with cloud KMS | Support AWS KMS, GCP KMS, or Azure Key Vault |

@@ -74,12 +74,10 @@ def validate_row(row: dict, model: BaseModel) -> bool:
     Validate a row against the dynamically created Pydantic model.
     """
     try:
-        print(f"Validating row: {row}")
         model(**row)
         return True
     except ValidationError as e:
         error = e.errors()
-        print(f"Validation error for row {row}: {error}")
         if error:
             for err in error:
                 logger.error(

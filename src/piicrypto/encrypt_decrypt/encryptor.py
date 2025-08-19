@@ -57,9 +57,13 @@ def encrypt_csv_file(
         writer.writeheader()
         encrypted_fields = set()
         for row_num, row in enumerate(reader):
-            if validation_model and not validate_row(row, validation_model):
-                logger.warning(f"Skipping row {row_num} due to validation errors")
-                continue
+            if validation_model:
+                logger.info(f"Validating row {row_num}")
+                if not validate_row(row, validation_model):
+                    logger.warning(f"Skipping row {row_num} due to validation errors")
+                    continue
+                logger.info(f"Row {row_num} validated successfully")
+            logger.info(f"Processing row {row_num}")
             nonce = generate_nonce()
             for field in reader.fieldnames:
                 if not row[field] or skip_id_column(row_num, row[field], field):
@@ -81,6 +85,7 @@ def encrypt_csv_file(
                     encrypted_fields.add(field)
                     logger.info(f"Encrypted field: {field_alias} in row {row_num}")
             row["row_iv"] = base64.b64encode(nonce).decode()
+            logger.info(f"Processing completed for row {row_num}, writing to output")
             writer.writerow(row)
     if create_metadata:
         metadata = generate_metadata(
