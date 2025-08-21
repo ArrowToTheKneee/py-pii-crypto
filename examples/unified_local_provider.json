@@ -19,5 +19,5 @@
       "encrypt": true
     }
   },
-  "key_source": "/apps/examples/keys.json"
+  "key_source": "/data/examples/keys.json"
 }

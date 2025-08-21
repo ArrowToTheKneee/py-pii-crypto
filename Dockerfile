@@ -17,6 +17,9 @@ COPY pyproject.toml readMe.md /app/
 # Copy source code
 COPY src /app/src
 
+# Copy examples
+COPY examples /data/examples/
+
 # Install project (will read dependencies from pyproject.toml)
 RUN pip install .
 
@@ -29,6 +32,7 @@ WORKDIR /app
 # Copy installed packages and CLI entrypoint
 COPY --from=builder /usr/local/lib/python3.11/site-packages /usr/local/lib/python3.11/site-packages
 COPY --from=builder /usr/local/bin /usr/local/bin
+COPY --from=builder /data/examples /data/examples
 
 # Final entrypoint
 ENTRYPOINT ["pii-crypto"]
