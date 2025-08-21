@@ -19,5 +19,5 @@
       "encrypt": true
     }
   },
-  "key_source": "/home/apawar/py-pii-crypto/examples/keys.json"
+  "key_source": "/apps/examples/keys.json"
 }

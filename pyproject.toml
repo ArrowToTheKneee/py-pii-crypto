@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "pii-crypto"
-version = "0.1.0"
+version = "1.0.0"
 description = "A CLI tool and library for PII encryption and decryption with field-level key management."
 authors = [
   { name = "Avinash Pawar"}
@@ -12,9 +12,12 @@ authors = [
 readme = "readMe.md"
 requires-python = ">=3.7"
 dependencies = [
+  "pip",
+  "setuptools>=61.0",
   "typer>=0.9.0",
   "pycryptodome>=3.18.0",
-  "RapidFuzz>=3.13.0"
+  "RapidFuzz>=3.13.0",
+  "pydantic>=2.11.0",
 ]
 classifiers = [
   "Programming Language :: Python :: 3",
@@ -27,3 +30,13 @@ packages = ["piicrypto", "piicrypto.encrypt_decrypt", "piicrypto.helpers", "piic
 
 [project.scripts]
 pii-crypto = "piicrypto.cli:app"
+
+[tool.semantic_release]
+version_variable = [
+  "pyproject.toml:project.version"
+]
+upload_to_pypi = true
+build_command = "python -m build"
+changelog_file = "CHANGELOG.md"
+commit_message = "chore(release): {version}"
+tag_format = "v{version}"
