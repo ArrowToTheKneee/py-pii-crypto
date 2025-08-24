@@ -27,7 +27,7 @@ jobs:
       - name: Install release tooling
         run: |
           python -m pip install --upgrade pip
-          pip install python-semantic-release build twine
+          python -m pip install setuptools wheel build twine python-semantic-release
 
       # This step decides the next version from commit history,
       # bumps pyproject.toml, builds, publishes to PyPI,
