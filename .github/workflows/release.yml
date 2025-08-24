@@ -27,9 +27,7 @@ jobs:
       - name: Install release tooling
         run: |
           python -m pip install --upgrade pip
-          PIP_CACHE_DIR=/tmp/pip_cache python -m pip install --target=./.build_temp build 
-          cp -R ./.build_temp/* /usr/local/lib/python3.11/site-packages/
-          python -m pip install twine python-semantic-release
+          python -m pip install build twine python-semantic-release
 
       # This step decides the next version from commit history,
       # bumps pyproject.toml, builds, publishes to PyPI,
