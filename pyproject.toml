@@ -40,9 +40,7 @@ build_command = "python -m build"
 commit_message = "chore(release): {version}"
 tag_format = "v{version}"
 commit_version_number = true
+build_command = "python -m build"
 
 [tool.semantic_release.changelog]
 changelog_file = "CHANGELOG.md"
-
-[tool.semantic_release]
-build_command = "python -m build"
