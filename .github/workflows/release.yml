@@ -22,7 +22,7 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: "3.11"
+          python-version: '3.11'
 
       - name: Install release tooling
         run: |
@@ -41,7 +41,7 @@ jobs:
           PYPI_USERNAME: __token__                       # required for PyPI API tokens
           PYPI_PASSWORD: ${{ secrets.PYPI_API_TOKEN }}   # your API token
           # (No extra envs needed; action handles build/upload using pyproject config)
-          PIP_DISABLE_PIP_VERSION_CHECK: "1"
+          PIP_DISABLE_PIP_VERSION_CHECK: '1'
 
       # Only build/push Docker if a new release happened
       - name: Log in to Docker Hub
