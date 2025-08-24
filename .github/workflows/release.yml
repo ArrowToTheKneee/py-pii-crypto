@@ -1,0 +1,61 @@
+name: Release
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch: {}
+
+permissions:
+  contents: write    # needed to create releases/tags
+  packages: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout (with tags)
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install release tooling
+        run: |
+          python -m pip install --upgrade pip
+          pip install python-semantic-release build twine
+
+      # This step decides the next version from commit history,
+      # bumps pyproject.toml, builds, publishes to PyPI,
+      # pushes a tag, and creates a GitHub Release with changelog.
+      - name: Semantic Release (PyPI + GitHub)
+        id: semrel
+        uses: python-semantic-release/python-semantic-release@v9
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+        env:
+          PYPI_USERNAME: __token__                       # required for PyPI API tokens
+          PYPI_PASSWORD: ${{ secrets.PYPI_API_TOKEN }}   # your API token
+          # (No extra envs needed; action handles build/upload using pyproject config)
+          PIP_DISABLE_PIP_VERSION_CHECK: "1"
+
+      # Only build/push Docker if a new release happened
+      - name: Log in to Docker Hub
+        if: steps.semrel.outputs.released == 'true'
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Build & push Docker images
+        if: steps.semrel.outputs.released == 'true'
+        run: |
+          VERSION=${{ steps.semrel.outputs.version }}
+          IMAGE=${{ secrets.DOCKERHUB_USERNAME }}/pii-crypto
+          docker build -t $IMAGE:$VERSION -t $IMAGE:latest .
+          docker push $IMAGE:$VERSION
+          docker push $IMAGE:latest
