@@ -37,8 +37,9 @@ version_variable = [
 ]
 upload_to_pypi = true
 build_command = "python -m build"
-changelog_file = "CHANGELOG.md"
 commit_message = "chore(release): {version}"
 tag_format = "v{version}"
 commit_version_number = true
-changelog = true
+
+[tool.semantic_release.changelog]
+changelog_file = "CHANGELOG.md"
