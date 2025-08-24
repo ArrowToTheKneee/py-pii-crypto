@@ -43,3 +43,6 @@ commit_version_number = true
 
 [tool.semantic_release.changelog]
 changelog_file = "CHANGELOG.md"
+
+[tool.semantic_release]
+build_command = "python -m build"
