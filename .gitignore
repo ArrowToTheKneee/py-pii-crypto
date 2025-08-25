@@ -3,6 +3,7 @@
 __pycache__/
 src/*.egg-info/
 logs/
+CHANGELOG.md
 # Python bytecode
 *.py[cod]
 # Cython debug symbols

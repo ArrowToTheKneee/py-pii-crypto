@@ -34,18 +34,14 @@ jobs:
           python --version
           python -m pip list
 
-      # This step decides the next version from commit history,
-      # bumps pyproject.toml, builds, publishes to PyPI,
-      # pushes a tag, and creates a GitHub Release with changelog.
       - name: Semantic Release (PyPI + GitHub)
         id: semrel
         uses: python-semantic-release/python-semantic-release@v10
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
         env:
-          PYPI_USERNAME: __token__                       # required for PyPI API tokens
-          PYPI_PASSWORD: ${{ secrets.PYPI_API_TOKEN }}   # your API token
-          # (No extra envs needed; action handles build/upload using pyproject config)
+          PYPI_USERNAME: __token__                       
+          PYPI_PASSWORD: ${{ secrets.PYPI_API_TOKEN }}   
           PIP_DISABLE_PIP_VERSION_CHECK: '1'
 
       # Only build/push Docker if a new release happened

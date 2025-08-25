@@ -3,7 +3,7 @@ requires = ["setuptools>=61.0"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "pii-crypto"
+name = "py-pii-crypto"
 version = "1.0.0"
 description = "A CLI tool and library for PII encryption and decryption with field-level key management."
 authors = [
@@ -36,6 +36,7 @@ version_variable = [
   "pyproject.toml:project.version"
 ]
 upload_to_pypi = true
+upload_to_release = true
 build_command = "pip install build && python -m build --sdist --wheel ."
 commit_message = "chore(release): {version}"
 tag_format = "v{version}"
