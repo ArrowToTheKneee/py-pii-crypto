@@ -28,7 +28,7 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           python -m pip install build twine python-semantic-release
-          
+
       - name: Verify Python environment
         run: |
           python --version
@@ -39,7 +39,7 @@ jobs:
       # pushes a tag, and creates a GitHub Release with changelog.
       - name: Semantic Release (PyPI + GitHub)
         id: semrel
-        uses: python-semantic-release/python-semantic-release@v9
+        uses: python-semantic-release/python-semantic-release@v10
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
         env:
