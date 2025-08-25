@@ -34,8 +34,9 @@ py-pii-crypto/
 │   └── key_provider/             # Key provider interface + implementations
 ├── examples/                     # Sample CSVs, keys, and config
 ├── learnings/                    # Design notes
-├── pyproject.toml
-└── README.md
+├── pyproject.toml                # toml file for building
+└── Dockerfile                    # Docker file for containerization
+└── README.md                     # Readme file
 ```
 
 ---
