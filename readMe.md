@@ -244,7 +244,7 @@ v1_keys = km.get_keys_by_version("v1")  # -> {"ssn": "<b64>", "name": "<b64>", .
 | ✅ UI layer | A web UI to upload CSV, select fields, and download encrypted results |
 | ✅ Integration with cloud KMS | Support AWS KMS, GCP KMS, or Azure Key Vault |
 | ✅ Metadata storage | Store nonce and encryption metadata in structured headers or external files | Done. Nonce is stored per row, in row_iv column, in the enc or dec file. Metadata creation enabled by create_metadata option in cli for csv encryption and csv decryption
-| ✅ Docker support & CI/CD | Add Dockerfile for containerization and GH workflows |
+| ✅ Docker support & CI/CD | Add Dockerfile for containerization and GH workflows | Done. Artifacts published to Docker and PyPI and automated GH release
 | ✅ Unittest | Add Unittests to the repo |
 
 ---
