@@ -21,7 +21,7 @@ It supports multiple key providers (local and vault), metadata generation, and a
 - Rotating file logging under `logs/` with timestamped entries.
 - Ready-to-use examples and configs (`unified_local_provider.json`, `validation_config.json`, `keys.json`, `input_test.csv`, `enc.csv`, `dec.csv`).
 - Python API for programmatic encryption/decryption and key management.
-- Docker file and CI/CD integrated
+- Docker file and CI/CD integrated with unittests
 
 ---
 
@@ -245,7 +245,7 @@ v1_keys = km.get_keys_by_version("v1")  # -> {"ssn": "<b64>", "name": "<b64>", .
 | ✅ Integration with cloud KMS | Support AWS KMS, GCP KMS, or Azure Key Vault |
 | ✅ Metadata storage | Store nonce and encryption metadata in structured headers or external files | Done. Nonce is stored per row, in row_iv column, in the enc or dec file. Metadata creation enabled by create_metadata option in cli for csv encryption and csv decryption
 | ✅ Docker support & CI/CD | Add Dockerfile for containerization and GH workflows | Done. Artifacts published to Docker and PyPI and automated GH release
-| ✅ Unittest | Add Unittests to the repo |
+| ✅ Unittest | Add Unittests to the repo | Done. Using pytest
 
 ---
 
