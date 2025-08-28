@@ -29,7 +29,7 @@ jobs:
 
       - name: Run Ruff linter
         run: |
-          ruff check src tests --
+          ruff check src tests
 
       - name: Run pytest with coverage and HTML report
         run: |
