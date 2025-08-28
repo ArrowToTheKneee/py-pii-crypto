@@ -1,5 +1,3 @@
-import pytest
-
 from piicrypto.helpers.provider_config_parser import ProviderConfigParser
 
 

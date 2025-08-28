@@ -1,7 +1,5 @@
 import base64
 
-import pytest
-
 from piicrypto.encrypt_decrypt.decryptor import decrypt_data
 from piicrypto.encrypt_decrypt.encryptor import encrypt_data
 from piicrypto.helpers.utils import generate_aes_key, generate_nonce

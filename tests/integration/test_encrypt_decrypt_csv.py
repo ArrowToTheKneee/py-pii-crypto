@@ -1,5 +1,3 @@
-import pytest
-
 from piicrypto.encrypt_decrypt.decryptor import decrypt_csv_file
 from piicrypto.encrypt_decrypt.encryptor import encrypt_csv_file
 
