@@ -40,19 +40,11 @@ jobs:
             --cov-report=term-missing \
             --html=reports/pytest-report.html --self-contained-html
 
-      - name: Upload pytest & coverage reports
-        uses: actions/upload-artifact@v4
-        with:
-          name: pytest-reports
-          path: |
-            coverage.xml
-            pytest-report.html
-
-      - name: Upload HTML report
+      - name: Upload pytest HTML report
         uses: actions/upload-artifact@v4
         with:
           name: pytest-html
-          path: pytest-report.html
+          path: reports
 
       - name: Deploy pytest report to GitHub Pages
         uses: peaceiris/actions-gh-pages@v4
