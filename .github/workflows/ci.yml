@@ -1,0 +1,51 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main] 
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e .[dev]   # assumes you have test deps in extras
+          pip install pytest pytest-cov pytest-html black ruff
+    
+      - name: Run Black to check formatting
+        run: |
+          black --check piicrypto tests
+
+      - name: Run Ruff linter
+        run: |
+          ruff check piicrypto
+
+      - name: Run pytest with coverage and HTML report
+        run: |
+          pytest \
+            --cov=piicrypto \
+            --cov-report=xml \
+            --cov-report=term-missing \
+            --html=pytest-report.html \
+            --self-contained-html
+
+      - name: Upload pytest & coverage reports
+        uses: actions/upload-artifact@v4
+        with:
+          name: pytest-reports
+          path: |
+            coverage.xml
+            pytest-report.html
