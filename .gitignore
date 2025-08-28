@@ -1,6 +1,9 @@
 # Python builds
 
 __pycache__/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
 src/*.egg-info/
 logs/
 CHANGELOG.md
