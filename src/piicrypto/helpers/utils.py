@@ -38,7 +38,7 @@ def find_best_match(query: str, field_to_alias: dict) -> str:
     return reverse_lookup[match] if similarity >= 95 else query
 
 
-def skip_id_column(row_number: int, value: dict, field_name: str) -> bool:
+def skip_id_column(row_number: int, value: str, field_name: str) -> bool:
     """
     Skip the ID column in the first row of a CSV file.
     """
